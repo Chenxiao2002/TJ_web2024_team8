@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>廖义的主页</title>
+	<script>
+	  setInterval(function() {
+		var now = new Date();
+		var year = now.getFullYear(); // 年份
+		var month = now.getMonth() + 1; // 月份，从0开始
+		var date = now.getDate(); // 日期
+		var hour = now.getHours(); // 时
+		if (hour < 10) hour = '0' + hour;
+		var minute = now.getMinutes(); // 分
+		if (minute < 10) minute = '0' + minute;
+		var second = now.getSeconds(); // 秒
+		if (second < 10) second = '0' + second;
+		var timeEle = document.getElementById('time');
+		if (!timeEle) { // 有可能刚开始页面还没加载，会返回空
+			return;
+		}
+		var dispText = year + '年' + month + '月' + date + '日 '
+						+ hour + ':' + minute + ':' + second;
+		timeEle.innerHTML = dispText;
+	  }, 1000);
+	</script>
+  </head>
+  <body>
+    <div style="text-align: center;">
+		<div>
+      欢迎来到&nbsp;<label style="font-size: 24px;font-weight: bold;">廖义</label>&nbsp;的主页
+	  <br><br>
+	  当前时间是：<span id="time" style="color: #ff0000;"></span>
+	</div>
+	</div>
+  </body>
+</html>
