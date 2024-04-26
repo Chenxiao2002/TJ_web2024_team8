@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    CoffeeShop | 首页
+{% endblock %}
+
+{% block header_extends %}
+<link rel="stylesheet" href="{% static 'home.css' %}">
+<script src="static\highcharts.js"></script> 
+{% endblock %}
+
+{% block nav_home_active %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+	<div class="row">
+		<div style="height: 35px">
+		</div>
+	</div>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+			<div style="text-align: center">
+            <h2>你好，这里是CoffeeShop</h2>
+			</div>
+			<div style="height: 35px">
+			</div>
+            <!-- 图表容器 DOM -->
+            <div id="container"></div>
+            <div class="hot-data">
+                <h3>今日热门帖子</h3>
+                <ul>
+                    {% for hot_data in today_hot_data %}
+                    <li><a href="{% url 'blog_detail' hot_data.content_object.pk %}">{{ hot_data.content_object.title }}</a>({{ hot_data.read_num }})</li>
+                    {% empty %}
+                    <li>今日暂时没有热门帖子</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="hot-data">
+                <h3>昨日热门帖子</h3>
+                <ul>
+                    {% for hot_data in yesterday_hot_data %}
+                    <li><a href="{% url 'blog_detail' hot_data.content_object.pk %}">{{ hot_data.content_object.title }}</a>({{ hot_data.read_num }})</li>
+                    {% empty %}
+                    <li>昨日暂时没有热门帖子</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="hot-data">
+                <h3>7天热门帖子</h3>
+                <ul>
+                    {% for hot_blog in hot_blogs_for_7_days %}
+                    <li><a href="{% url 'blog_detail' hot_blog.id %}">{{ hot_blog.title }}</a>({{ hot_blog.read_num_sum }})</li>
+                    {% empty %}
+                    <li>7天内暂时没有热门帖子</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+		<div class="col-md-3">
+			<div style="height: 22px">
+			</div>
+			<div class="about_title_rec">
+				新手上路/关于*
+			<div class="about_content_rec">
+				Coffee Shop论坛是一个莘莘学子们结交朋友、共同进步的平台。在计算机专业的学习生活中，难免会迷茫：课程之外，当下应该去了解哪些技术？学习中遇到问题，有没有大神能提供帮助？大学生活有些枯燥，不如和朋友们一块去聚会？...<br/>
+				因此我们创造了Coffee Shop论坛。在Coffee Shop论坛上，所有人都可以自由地交流题目、下载资源、畅谈校园生活...这里将会是我们的数字圣地<br/>
+				简而言之，你需要一个账号，然后我们就可以开始了！<br/><br/>
+				关于*：<br/>
+				我们使用到的背景图片：<br/>
+				https://www.artstation.com/artwork/<br/>yb8lwQ<br/>
+				zeqing yan<br/>
+				场景概念设计师<br/><br/>
+				·该图片版权归原作者所有<br/>
+				·本网站提供的内容或服务仅于个人学习、研究或欣赏用，并无商业性行为
+			</div>
+				</div>
+		</div>
+    </div>
+</div>
+<script>
+        // 图表配置
+        var options = {
+            chart: { type: 'line' },
+            title: { text: null },
+            xAxis: {
+                categories: {{ dates|safe }},   // x 轴分类
+                tickmarkPlacement: 'on',
+                title: { text: '前7日阅读量变化'},
+            },
+            yAxis: {
+                title: { text: null },
+                labels:{ enabled: false },
+                gridLineDashStyle: 'Dash',
+            },
+            series: [{                              // 数据列
+                name: '阅读量',                     // 数据列名
+                data: {{ read_nums }}               // 数据
+            }],
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+            legend: { enabled: false },
+            credits: { enabled: false },
+        };
+        // 图表初始化函数
+        var chart = Highcharts.chart('container', options);
+    </script> 
+{% endblock %}
