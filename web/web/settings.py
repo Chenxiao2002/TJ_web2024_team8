@@ -208,3 +208,6 @@ EMAIL_HOST_USER = '2450482920@qq.com'
 EMAIL_HOST_PASSWORD = 'spgsbncqjncjecab' # 授权码
 EMAIL_SUBJECT_PREFIX = 'xxxx'
 EMAIL_USE_TLS = True  # 与SMTP服务器通信时，是否启动TLS链接(安全链接)
+
+# 配置保存文件路径()
+SYSTEM_PATH='D:/tongji/大二下/web技术/大作业/TJ_web2024_team8/web/static/img/'
