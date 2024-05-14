@@ -258,7 +258,7 @@ h2{
   height: 35rem;
   border-radius: 4rem 0 0 4rem; 
   background-color: transparent;
-  background-image: url('/public/bgimg.png');
+  background-image: url('/bgimg.png');
   text-align: center;
 
 }

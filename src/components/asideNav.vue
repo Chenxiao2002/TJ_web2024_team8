@@ -242,7 +242,7 @@ const doUpdate = async () => {
                  :on-error="onError"
       >
         <template #trigger>
-          <el-button class="btn" type="primary" round>选择一个文件</el-button>
+          <el-button class="btn" color="#2f779d" type="primary" round>选择一个文件</el-button>
         </template>
         <template #tip>
           <div class="el-upload__tip" style="color:red;text-align: left">
@@ -266,7 +266,7 @@ const doUpdate = async () => {
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogFormVisible = false" round>取消</el-button>
-        <el-button type="primary" @click="doUpdate" round>
+        <el-button color="#2f779d" type="primary" @click="doUpdate" round>
           确认
         </el-button>
       </span>
@@ -320,7 +320,7 @@ const doUpdate = async () => {
   position: absolute;
   width: 60px;
   height: auto;
-  background-color: #f6f3f3;
+  background-color: #f3f5f6;
   z-index: 2;
   top: 65px;
   bottom: 0;
@@ -365,14 +365,14 @@ const doUpdate = async () => {
 }
 
 .menu .actionsBar div button:hover {
-  background-color: #d5d0d0;
-  color: #F19FA3;
+  background-color: #d0d3d5;
+  color: #2f779d;
 
 }
 
 .menu .actionsBar div h3 {
   width: calc(100% - 45px);
-  text-align: center;
+  text-align: left;
 }
 
 .menu .optionsBar {
@@ -406,14 +406,14 @@ const doUpdate = async () => {
 }
 
 .menu .optionsBar .menuItem .menuOption:hover {
-  background-color: #d5d0d0;
-  color: #f5131e;
+  background-color: #d0d3d5;
+  color: #2f779d;
 
 }
 
 .menu .optionsBar .menuItem .menuOption:hover i,
 .menu .optionsBar .menuItem .menuOption:hover h5 {
-  color: #f5131e;
+  color: #2f779d;
 
 }
 
@@ -456,19 +456,19 @@ const doUpdate = async () => {
 .menuText.open2 {
   opacity: 1;
   transform: translateX(0);
-  text-align: center;
+  text-align: left;
 }
 
 .menu .menuBreak {
   width: 100%;
   height: 10px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: left;
+  justify-content:baseline;
 }
 
 .menu .menuBreak hr {
-  width: 70%;
+  width: 95%;
   height: 3px;
   background-color: #000;
   border: none;
@@ -505,8 +505,8 @@ const doUpdate = async () => {
 }
 
 .menu .themeBar div button:hover {
-  background-color: #d5d0d0;
-  color: #f5131e;
+  background-color: #d0d3d5;
+  color: #2f779d;
 
 }
 
@@ -550,7 +550,7 @@ const doUpdate = async () => {
 
 .menu .menuUser a:hover p {
   animation: animArrow 0.3s ease 2;
-  color: #F19FA3;
+  color: #2f779d;
 
 }
 
@@ -585,7 +585,7 @@ const doUpdate = async () => {
   pointer-events: all;
   opacity: 1;
   transform: scale(1);
-  color: #F19FA3;
+  color: #2f779d;
 }
 
 .el-button--text {

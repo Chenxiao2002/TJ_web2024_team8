@@ -17,14 +17,14 @@ const router = createRouter({
             path: '/',
             component: Home,
             meta: {
-                title: '欢迎来到Dlock~',
+                title: '欢迎来到TJ论坛~',
             },
             children: [
                 {
                     path: '',
                     component: Explore,
                     meta: {
-                        title: '欢迎来到Dlock~',
+                        title: '欢迎来到TJ论坛~',
                     },
                 },
                 {
@@ -38,21 +38,21 @@ const router = createRouter({
                     path: 'user/index/:id',
                     component: UserIndex,
                     meta: {
-                        title: 'Dlock-分享你的生活',
+                        title: 'TJ论坛-分享你的生活',
                     },
                 },
                 {
                     path: 'user/uploads',
                     component: Uploads,
                     meta: {
-                        title: '发布 .Dlock',
+                        title: '发布 .TJ论坛',
                     },
                 },
                 {
                     path: 'user/control',
                     component: UserPostControl,
                     meta: {
-                        title: '信息管理 .Dlock',
+                        title: '信息管理 .TJ论坛',
                     },
                 },
             ],
@@ -61,7 +61,7 @@ const router = createRouter({
             path: '/login',
             component: Login,
             meta: {
-                title: '欢迎登录Dlock分享你的生活',
+                title: '欢迎登录TJ论坛分享你的生活',
             },
         },
         {
@@ -92,7 +92,7 @@ router.beforeEach((to, from, next) => {
 
 router.afterEach((to, from) => {
     // 根据当前路由信息来设置新的 title
-    document.title = to.meta.title || '欢迎来到Dlock~';
+    document.title = to.meta.title || '欢迎来到TJ论坛~';
 });
 
 export default router

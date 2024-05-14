@@ -21,7 +21,7 @@ const getUserInfo = async () => {
   const id = route.params.id
   const res = await queryUserIndex({id})
   userInfo.value = res.data
-  document.title = res.data.user.username + ' .Dlock'
+  document.title = res.data.user.username + ' .TJ论坛'
 }
 const checkFollow = (id) => {
   if (userStore.userInfo.id === id) {
@@ -129,12 +129,12 @@ const showMessage = async (id, left, top) => {
 const afterDoComment = (comment) => Details.afterDoComment(comment)
 const close = () => {
   window.history.pushState({}, '', `/user/index/${userInfo.value.user.id}`);
-  document.title = userInfo.value.user.username + ' .Dlock'
+  document.title = userInfo.value.user.username + ' .TJ论坛'
   show.value = false
 }
 onClickOutside(overlay, () => {
   window.history.pushState({}, "", `/user/index/${userInfo.value.user.id}`);
-  document.title = userInfo.value.user.username + ' .Dlock'
+  document.title = userInfo.value.user.username + ' .TJ论坛'
   show.value = false;
 });
 let style = null;
@@ -208,10 +208,10 @@ onMounted(async () => {
     </el-row>
   </div>
   <div class="checkBox" @change="Toggle">
-    <el-radio-group v-model="radio" size="large">
-      <el-radio-button class="radio" label="帖子" name="post"/>
-      <el-radio-button class="radio" label="收藏" name="collect"/>
-      <el-radio-button class="radio" label="点赞" name="like"/>
+    <el-radio-group fill="#2f779d"  v-model="radio" size="large">
+      <el-radio-button fill="#2f779d" class="radio" label="帖子" name="post"/>
+      <el-radio-button fill="#2f779d" class="radio" label="收藏" name="collect"/>
+      <el-radio-button fill="#2f779d" class="radio" label="点赞" name="like"/>
     </el-radio-group>
   </div>
   <div style="margin-top: 30px;" v-if="userInfo.user">
@@ -313,7 +313,7 @@ onMounted(async () => {
   font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  background-color: red;
+  background-color: #2f779d;
   border-radius: 1000px;
   color: #fff;
   border-color: transparent;
@@ -321,7 +321,7 @@ onMounted(async () => {
 }
 
 .focusOn:hover {
-  background-color: #fd5656;
+  background-color: #8db4ca;
 }
 
 .tagArea {

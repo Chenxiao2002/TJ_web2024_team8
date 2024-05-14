@@ -182,10 +182,10 @@ const empty = []
       </div>
     </el-col>
     <el-col :span="50">
-      <el-button style="margin-top: 150px;color:white;" round color="#fd5656" size="large" @click="doUploads">发布推文
+      <el-button color="#2f779d" style="margin-top: 150px;color:white;" round  size="large" @click="doUploads">发布推文
       </el-button>
       <br>
-      <el-button style="margin-top: 200px;" round type="primary" size="large" @click="MakePrev">生成预览</el-button>
+      <el-button color="#8db4ca" style="margin-top: 200px;color:white;" round type="primary" size="large" @click="MakePrev">生成预览</el-button>
     </el-col>
   </el-row>
 

@@ -62,12 +62,12 @@ const afterDoComment = (comment) => Details.afterDoComment(comment)
 const close = () => {
   window.history.pushState({}, "", "/");
   show.value = false;
-  document.title = '欢迎来到Dlock!'
+  document.title = '欢迎来到TJ论坛!'
 };
 onClickOutside(overlay, () => {
   window.history.pushState({}, "", "/");
   show.value = false;
-  document.title = '欢迎来到Dlock!'
+  document.title = '欢迎来到TJ论坛!'
 });
 
 let style = null;
