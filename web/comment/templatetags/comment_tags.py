@@ -6,6 +6,7 @@ from ..forms import CommentForm
 
 register = template.Library()
 
+"""这段代码在论坛的后端用于处理与评论相关的操作，包括获取评论数量、获取评论表单和获取评论列表。"""
 @register.simple_tag
 def get_comment_count(obj):
     content_type = ContentType.objects.get_for_model(obj)
