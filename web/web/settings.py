@@ -37,17 +37,19 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'ckeditor',
-    'ckeditor_uploader',
-    'blog',
-    'read_statistics',
-    'comment',
-    'likes',
+    #'ckeditor',
+    #'ckeditor_uploader',
+    #'blog',
+    #'read_statistics',
+    #'comment',
+    #'likes',
     'user',
-    'cache',
+    #'cache',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -57,6 +59,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 
 ]
+# 支持跨域配置开始
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True 
 
 ROOT_URLCONF = "web.urls"
 
@@ -70,8 +75,7 @@ TEMPLATES = [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-                'user.context_processors.login_modal_form',
+                "django.contrib.messages.context_processors.messages"
             ],
         },
     },
@@ -85,8 +89,14 @@ WSGI_APPLICATION = "web.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        # "ENGINE": "django.db.backends.sqlite3",
+        # "NAME": BASE_DIR / "db.sqlite3",
+        'ENGINE': 'djongo',
+        'NAME': 'your-database-name',  # 数据库名称
+        'ENFORCE_SCHEMA': False,
+        'CLIENT': {
+            'host': 'mongodb://username:password@host:port/database'  # MongoDB 连接 URI
+        }
     }
 }
 """
@@ -208,3 +218,4 @@ EMAIL_HOST_USER = '2450482920@qq.com'
 EMAIL_HOST_PASSWORD = 'spgsbncqjncjecab' # 授权码
 EMAIL_SUBJECT_PREFIX = 'xxxx'
 EMAIL_USE_TLS = True  # 与SMTP服务器通信时，是否启动TLS链接(安全链接)
+

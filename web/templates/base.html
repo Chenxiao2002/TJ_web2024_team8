@@ -30,7 +30,7 @@
                         <a href="{% url 'home' %}" class="a_block_title_customize">首页</a>
                     </li>
                     <li class="{% block nav_blog_active %}{% endblock %}">
-                        <a href="{% url 'blog_list' %}" class="a_block_title_customize">讨论版</a>
+                        {% comment %} <a href="{% url 'blog_list' %}" class="a_block_title_customize">讨论版</a> {% endcomment %}
                     </li>
                 </ul>
 				</div>
@@ -57,15 +57,15 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a href="{% url 'user_info' %}">个人资料</a></li>
-                                <li><a href="{% url 'change_password' %}">修改密码</a></li>
-                                {% if user.is_staff or user.is_superuser %}
+                                {% comment %} <li><a href="{% url 'change_password' %}">修改密码</a></li> {% endcomment %}
+                                {% comment %} {% if user.is_staff or user.is_superuser %}
                                     <li><a href="{% url 'admin:index' %}">后台管理</a></li>
-                                {% endif %}
-                                <li><a href="{% url 'logout' %}?from={{ request.get_full_path }}">退出</a></li>
+                                {% endif %} {% endcomment %}
+                                {% comment %} <li><a href="{% url 'logout' %}?from={{ request.get_full_path }}">退出</a></li> {% endcomment %}
                             </ul>
                         </li>
                     {% endif %}
-                    <li>
+                    {% comment %} <li>
                         <form class="navbar-form search-form" action="{% url 'search' %}">
                             <div class="form-group">
                                 <input type="text" name="wd" class="form-control" placeholder="Search">
@@ -74,7 +74,7 @@
                                 <span class="glyphicon glyphicon-search"></span>
                             </button>
                         </form>
-                    </li>
+                    </li> {% endcomment %}
                 </ul>
             </div>
 				</div>
@@ -114,7 +114,7 @@
         $("#login_medal_form").submit(function(event){
             event.preventDefault();
             $.ajax({
-                url: '{% url "login_for_medal" %}',
+                url: '{% url "login" %}',
                 type: 'POST',
                 data: $(this).serialize(),
                 cache: false,
