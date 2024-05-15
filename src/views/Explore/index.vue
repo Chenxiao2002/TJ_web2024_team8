@@ -19,7 +19,7 @@ const disabled = ref(true); // 初始禁用滚动加载
 const columns = ref(0)
 const card_columns = ref({})
 const arrHeight = ref([])
-
+//我觉得可以根据标签，获得所有卡片，日常卡片，选课卡片之类的，然后根据tab的选择显示卡片
 // 主页获取帖子
 const doQuery = async (offset) => {
   const res = await queryPost({offset, query});
