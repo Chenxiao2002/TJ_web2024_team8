@@ -130,6 +130,9 @@ const handleClick = (tab) => {
       <el-tab-pane label="日常" name="second"></el-tab-pane>
       <el-tab-pane label="学习" name="third"></el-tab-pane>
       <el-tab-pane label="选课" name="fourth"></el-tab-pane>
+      <el-tab-pane label="拼车" name="fifth"></el-tab-pane>
+      <el-tab-pane label="实习" name="sixth"></el-tab-pane>
+      <el-tab-pane label="交友" name="seventh"></el-tab-pane>
     </el-tabs>
     <div class="Empty" v-if="cards.length === 0">
       <el-empty description="没有帖子..."/>
