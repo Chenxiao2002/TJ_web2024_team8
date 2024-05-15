@@ -20,18 +20,22 @@ IMG_DIR=BASE_DIR/'img' #需要最后确定头像存储路径，先瞎编一个
 # 用户登录
 def login(request):
     data = json.loads(request.body)
-    user = User.objects.filter(**data).first()
-    if user:
-        token = create_token(user)
+    username = data.get('username')
+    password = data.get('password')
+    if not username or not password:
+        return JsonResponse({'error': '缺少必要的用户名或密码'}, status=400)
+    user = User.objects.filter(username=username, password=password).first()
+    error_message = {'error': '邮箱或密码错误','name':username,'password':password}
+    if user :
+        #token = create_token(user)
         user = {
-            'id': user.id,
+            'id': str(user._id),
             'username': user.username,
-            'avatar': user.avatar,
-            'signature': user.signature,
-            'token': token
+            #'avatar': user.avatar,
+            #'signature': user.signature,
+            #'token': token
         }
         return JsonResponse(user, status=200)
-    error_message = {'error': '邮箱或密码错误'}
     return JsonResponse(error_message, status=401)
 
 
