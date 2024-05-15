@@ -1,5 +1,9 @@
 @font-face {
   font-family: "iconfont"; /* Project id  */
+  src: url('iconfont2.ttf?t=1715755902453') format('truetype');
+}
+@font-face {
+  font-family: "iconfont"; /* Project id  */
   src: url('iconfont.ttf?t=1685113806816') format('truetype');
 }
 
@@ -33,5 +37,10 @@
 
 .icon-tupian:before {
   content: "\e629";
+}
+
+
+.icon-tongzhi:before {
+  content: "\e691";
 }
 

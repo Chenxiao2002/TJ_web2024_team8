@@ -108,42 +108,84 @@ const onAfterLeave = () => {
 }
 
 // 卡片详情结束 //////////////////////////////////////////////////////////////////
-
+// onMounted()钩子函数，在组件挂载后执行某些操作
+// async()=>{}异步函数
 onMounted(async () => {
-  await doQuery(0);
+  await doQuery(0);  //等待doQuery完成
   resizeWaterFall(columns, card_columns, arrHeight, cards)
+  // 调整瀑布流布局
 });
+
+const activeName = ref('first')
+
+const handleClick = (tab) => {
+  console.log(tab.props.name) //这个就是el-tab-pane中的name
+}
 </script>
 
 <template>
-  <div class="Empty" v-if="cards.length === 0">
-    <el-empty description="没有帖子..."/>
-  </div>
-  <div v-else>
-    <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-distance="200">
-      <home-card :card_columns="card_columns" @show-detail="showMessage" ref="homeCardRef"></home-card>
+  <div>
+    <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+      <el-tab-pane label="所有" name="first" ></el-tab-pane>
+      <el-tab-pane label="日常" name="second"></el-tab-pane>
+      <el-tab-pane label="学习" name="third"></el-tab-pane>
+      <el-tab-pane label="选课" name="fourth"></el-tab-pane>
+    </el-tabs>
+    <div class="Empty" v-if="cards.length === 0">
+      <el-empty description="没有帖子..."/>
     </div>
-    <transition
-        name="fade"
-        @before-enter="onBeforeEnter"
-        @after-enter="onAfterEnter"
-        @before-leave="onBeforeLeave"
-        @after-leave="onAfterLeave"
-    >
-      <div class="overlay" v-if="show">
-        <button style="display:none;" class="backPage" @click="close">
-          <el-icon>
-            <Back/>
-          </el-icon>
-        </button>
-        <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay"/>
+    <div v-else>
+      <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-distance="200">
+        <home-card :card_columns="card_columns" @show-detail="showMessage" ref="homeCardRef"></home-card>
       </div>
-    </transition>
+      <transition
+          name="fade"
+          @before-enter="onBeforeEnter"
+          @after-enter="onAfterEnter"
+          @before-leave="onBeforeLeave"
+          @after-leave="onAfterLeave"
+      >
+        <div class="overlay" v-if="show">
+          <button style="display:none;" class="backPage" @click="close">
+            <el-icon>
+              <Back/>
+            </el-icon>
+          </button>
+          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay"/>
+        </div>
+      </transition>
+    </div>
   </div>
 </template>
 
 
-<style scoped>
+<style lang='scss' scoped>
+/* 当前激活的标签 */
+:deep(.el-tabs__item.is-active) {
+  color:#2f779d;
+  font-weight: bold;
+}
+/* 标签项切换长条颜色 */
+:deep(.el-tabs__active-bar) {
+  background-color: #2f779d;
+}
+// 鼠标悬停在标签上
+:deep(.el-tabs__item:hover) {
+  color: #52cff2;
+}
+// 标签项
+:deep(.el-tabs__item) {
+  font-size: 16px;
+  /* font-family: 'Helvetica Neue', Arial, sans-serif !important; 设置字体族 */
+  /* 字体族暂不起作用 */
+}
+
+.demo-tabs > .el-tabs__content {
+  padding: 32px;
+  color: #6b778c;
+  font-size: 32px;
+  font-weight: 600;
+}
 .Empty {
   margin-top: 10%;
 }

@@ -1,6 +1,6 @@
 <script setup>
 import {ref} from "vue";
-import {Promotion, Expand, Close, Tools, HelpFilled} from "@element-plus/icons-vue";
+import {Promotion, Expand, Close, Tools, Bell} from "@element-plus/icons-vue";
 import {useUserStore} from "@/stores/user";
 import Login from '@/views/Login/index.vue'
 import {ElMessage} from "element-plus";
@@ -136,14 +136,14 @@ const doUpdate = async () => {
     </el-tooltip>
     <ul class="optionsBar">
       <li class="menuItem">
-        <el-tooltip effect="dark" content="主页" placement="right">
+        <el-tooltip effect="dark" content="发现" placement="right">
           <RouterLink to="/" class="menuOption">
             <i class="iconfont icon-shouye"></i>
-            <h5 class="menuText" :class="{ open2: isMenuOpen }">主页</h5>
+            <h5 class="menuText" :class="{ open2: isMenuOpen }">发现</h5>
           </RouterLink>
         </el-tooltip>
       </li>
-      <li class="menuBreak">
+      <li class="menuBreak"> 
         <hr>
       </li>
       <li class="menuItem">
@@ -157,23 +157,11 @@ const doUpdate = async () => {
         </el-tooltip>
       </li>
       <li class="menuItem" v-if="userStore.userInfo.id">
-        <el-tooltip effect="dark" content="更新个人信息" placement="right">
-          <div class="menuOption" @click="openDialog">
-            <el-icon size="x-large">
-              <Tools/>
-            </el-icon>
-            <h5 class="menuText" :class="{ open2: isMenuOpen }">更新个人信息</h5>
-          </div>
-        </el-tooltip>
-      </li>
-      <li class="menuItem" v-if="userStore.userInfo.id">
-        <el-tooltip effect="dark" content="个人帖子管理" placement="right">
+        <el-tooltip effect="dark" content="通知" placement="right">
           <RouterLink to="/user/control">
             <div class="menuOption">
-              <el-icon size="x-large">
-                <HelpFilled/>
-              </el-icon>
-              <h5 class="menuText" :class="{ open2: isMenuOpen }">个人帖子管理</h5>
+               <i class="iconfont icon-tongzhi"></i>
+              <h5 class="menuText" :class="{ open2: isMenuOpen }">通知</h5>
             </div>
           </RouterLink>
         </el-tooltip>
@@ -228,50 +216,7 @@ const doUpdate = async () => {
     <login @changeShow="changeShow"/>
   </div>
 
-  <el-dialog v-model="dialogFormVisible" title="更新个人信息" center draggable>
-    <div class="fileUpload">
-      <el-upload v-model:file-list="fileList"
-                 ref="upload"
-                 action="http://localhost:8000/user/avatar/"
-                 :limit="1"
-                 :on-exceed="handleExceed"
-                 :auto-upload="false"
-                 :on-change="handleChange"
-                 :headers="userStore.headersObj"
-                 :on-success="onSuccess"
-                 :on-error="onError"
-      >
-        <template #trigger>
-          <el-button class="btn" color="#2f779d" type="primary" round>选择一个文件</el-button>
-        </template>
-        <template #tip>
-          <div class="el-upload__tip" style="color:red;text-align: left">
-            仅限一个文件，新文件将会被覆盖
-          </div>
-        </template>
-      </el-upload>
-
-    </div>
-    <div class="fileUpload">
-      <el-form :model="form" ref="formRef" :rules="rules" label-position="top">
-        <el-form-item prop="username" label="昵称" label-width="100px" style="margin: 30px;">
-          <el-input v-model="form.username" maxlength="6"
-                    show-word-limit class="my"/>
-        </el-form-item>
-        <el-form-item prop="signature" label="个性签名" label-width="100px" style="margin: 30px;">
-          <el-input v-model="form.signature" class="my"/>
-        </el-form-item>
-      </el-form>
-    </div>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogFormVisible = false" round>取消</el-button>
-        <el-button color="#2f779d" type="primary" @click="doUpdate" round>
-          确认
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
+  
 </template>
 
 <style scoped>
@@ -537,7 +482,7 @@ const doUpdate = async () => {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 0.5rem;
+  border-radius: 50%;
 }
 
 .menu .menuUser a .Username {
