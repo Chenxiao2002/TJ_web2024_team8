@@ -185,6 +185,113 @@ onMounted(async () => {
   await Toggle()
   resize()
 })
+
+import {genFileId} from 'element-plus'
+import {updateUserInfo} from "@/apis/main";
+
+// 用户信息更新栏
+////////////////////////////////////////////////////////////////
+// 控制文件表单
+const dialogFormVisible = ref(false)
+// 文件上传对象
+const upload = ref(null)
+// 上传头像成功后修改pinia数据
+const avatar = ref('')
+const fileList = ref([])
+const handleExceed = (files) => {
+  upload.value.clearFiles()
+  const file = files[0]
+  file.uid = genFileId()
+  upload.value.handleStart(file)
+}
+const handleChange = (uploadFile, uploadFiles) => {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // 可接受的图片类型
+  const maxSize = 2; // 最大文件大小，单位：MB
+
+  if (!allowedTypes.includes(uploadFile.raw.type)) {
+    ElMessage.error('请上传正确的图片文件!');
+    upload.value.handleRemove(uploadFile);
+    return false;
+  } else if (uploadFile.raw.size / 1024 / 1024 > maxSize) {
+    ElMessage.error(`文件大小最多${maxSize}MB!`);
+    upload.value.handleRemove(uploadFile);
+    return false;
+  }
+  return true;
+};
+const onSuccess = async (response) => {
+  avatar.value = response.info.filepath
+}
+const onError = async (error) => {
+  ElMessage({
+    type: 'warning',
+    message: '头像上传失败'
+  })
+  const userStore = useUserStore();
+  await userStore.userLogout()
+  await router.replace('/')
+}
+// 控制表单信息
+const form = ref({
+  username: '',
+  signature: ''
+})
+const openDialog = () => {
+  dialogFormVisible.value = true
+  form.value.username = userStore.userInfo.username
+  form.value.signature = userStore.userInfo.signature
+}
+// 表单验证规则
+const rules = {
+  username: [
+    {required: true, message: '用户名不能为空！', trigger: 'blur'}
+  ],
+  signature: [
+    {required: true, message: '个性签名不能为空!', trigger: 'blur'}
+  ]
+}
+// 表单对象
+const formRef = ref(null)
+const doUpdate = async () => {
+  const {username, signature} = form.value;
+  const isModified = username !== userStore.userInfo.username || signature !== userStore.userInfo.signature;
+  const isAvatarUploaded = fileList.value.length === 1;
+
+  if (!isModified && !isAvatarUploaded) {
+    ElMessage({type: 'warning', message: '未作任何修改！'});
+    return;
+  }
+
+  if (isModified && !isAvatarUploaded) {
+    await updateUserInfo({username, signature});
+    avatar.value = userStore.userInfo.avatar;
+    userStore.changeInfo({username, signature, avatar});
+    ElMessage({type: 'success', message: '用户信息更新成功'});
+    dialogFormVisible.value = false;
+    return;
+  }
+
+  if (!isModified && isAvatarUploaded) {
+    await upload.value.submit();
+    userStore.changeInfo({username, signature, avatar});
+    ElMessage({type: 'success', message: '头像上传成功'});
+    dialogFormVisible.value = false;
+    return;
+  }
+
+  if (isModified && isAvatarUploaded) {
+    const res = await updateUserInfo({username, signature});
+    await upload.value.submit();
+    userStore.changeInfo({username, signature, avatar});
+    ElMessage({type: 'success', message: res.info});
+    dialogFormVisible.value = false;
+  }
+};
+
+const all_sent = ref(false)
+const all_star = ref(false)
+const all_like = ref(false)
+
 </script>
 
 <template>
@@ -194,7 +301,12 @@ onMounted(async () => {
         <el-avatar :size="150" :src="userInfo.user.avatar"></el-avatar>
       </el-col>
       <el-col :span="7" style="width: 250px!important;">
-        <h2>{{ userInfo.user.username }}</h2>
+        <div class="container">
+          <h2>{{ userInfo.user.username }}</h2>
+          <button class="updBtn" @click="openDialog">
+            <h5>编辑个人信息</h5>
+          </button>
+        </div>
         <p>{{ userInfo.user.signature }}</p>
         <div class="tagArea">
           <el-tag class="ml-2" type="success" round>{{ userInfo.user.focusOn }} 关注</el-tag>
@@ -207,6 +319,49 @@ onMounted(async () => {
       </el-col>
     </el-row>
   </div>
+  <el-dialog v-model="dialogFormVisible" title="更新个人信息" center draggable>
+    <div class="fileUpload">
+      <el-upload v-model:file-list="fileList"
+                 ref="upload"
+                 action="http://localhost:8000/user/avatar/"
+                 :limit="1"
+                 :on-exceed="handleExceed"
+                 :auto-upload="false"
+                 :on-change="handleChange"
+                 :headers="userStore.headersObj"
+                 :on-success="onSuccess"
+                 :on-error="onError"
+      >
+        <template #trigger>
+          <el-button class="btn" color="#2f779d" type="primary" round>选择一个文件</el-button>
+        </template>
+        <template #tip>
+          <div class="el-upload__tip" style="color:red;text-align: left">
+            仅限一个文件，新文件将会被覆盖
+          </div>
+        </template>
+      </el-upload>
+    </div>
+    <div class="fileUpload">
+      <el-form :model="form" ref="formRef" :rules="rules" label-position="top">
+        <el-form-item prop="username" label="昵称" label-width="100px" style="margin: 30px;">
+          <el-input v-model="form.username" maxlength="6"
+                    show-word-limit class="my"/>
+        </el-form-item>
+        <el-form-item prop="signature" label="个性签名" label-width="100px" style="margin: 30px;">
+          <el-input v-model="form.signature" class="my"/>
+        </el-form-item>
+      </el-form>
+    </div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogFormVisible = false" round>取消</el-button>
+        <el-button color="#2f779d" type="primary" @click="doUpdate" round>
+          确认
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
   <div class="checkBox" @change="Toggle">
     <el-radio-group fill="#2f779d"  v-model="radio" size="large">
       <el-radio-button fill="#2f779d" class="radio" label="帖子" name="post"/>
@@ -240,6 +395,13 @@ onMounted(async () => {
           <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay"/>
         </div>
       </transition>
+      <div class="checkbox-container">
+        <label>
+          <input type="checkbox" v-model="all_sent" />
+          全选帖子
+        </label>
+        <button class="delBtn">删除所选帖子</button>
+      </div>
     </div>
     <div v-else-if="radio === '收藏'">
       <div v-if="userCollect.length === 0">
@@ -266,6 +428,13 @@ onMounted(async () => {
           <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay"/>
         </div>
       </transition>
+      <div class="checkbox-container">
+        <label>
+          <input type="checkbox" v-model="all_star" />
+          全选收藏
+        </label>
+        <button class="delBtn">取消所选收藏</button>
+      </div>
     </div>
     <div v-else-if="radio === '点赞'">
       <div v-if="userFavorite.length === 0">
@@ -292,6 +461,13 @@ onMounted(async () => {
           <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay"/>
         </div>
       </transition>
+      <div class="checkbox-container">
+        <label>
+          <input type="checkbox" v-model="all_like" />
+          全选喜欢
+        </label>
+        <button class="delBtn">取消所选点赞</button>
+      </div>
     </div>
   </div>
 </template>
@@ -336,6 +512,89 @@ onMounted(async () => {
   margin-top: 50px;
   position: relative;
   left: 40%;
+}
+
+.radio + .radio {
+  margin-left: 30px;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  width: 800px;
+  gap: 200px;
+}
+
+.updBtn {
+  width: 100px;
+  background-color: #8db4ca;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.updBtn:hover {
+  background-color: #2f779d;
+}
+
+.updBtn h5 {
+  margin: 0;
+  font-size: 12px;
+  display: inline;
+}
+
+.btn {
+  align-items: center;
+}
+
+.el-upload__tip {
+  align-items: center;
+}
+
+.checkbox-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  position: fixed;
+  right: 10%;
+}
+
+label {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+}
+
+input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.delBtn {
+  width: 90px;
+  background-color: white;
+  border: 1px solid lightcoral;
+  color: black;
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.delBtn:hover {
+  background-color: lightcoral;
 }
 
 .overlay {
