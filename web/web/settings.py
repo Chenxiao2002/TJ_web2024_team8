@@ -37,27 +37,47 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'ckeditor',
-    'ckeditor_uploader',
-    'blog',
-    'read_statistics',
-    'comment',
-    'likes',
+    #'ckeditor',
+    #'ckeditor_uploader',
+    #'blog',
+    #'read_statistics',
+    #'comment',
+    #'likes',
     'user',
-    'cache',
+    #'cache',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    #"django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 
 ]
+# 支持跨域配置开始
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True 
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+]
+
+CORS_ALLOWED_METHODS = [
+    'GET',
+    'POST',
+    'OPTIONS',
+]
+
+CORS_ALLOWED_HEADERS = [
+    'Content-Type',
+]
 ROOT_URLCONF = "web.urls"
 
 TEMPLATES = [
@@ -70,8 +90,7 @@ TEMPLATES = [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-                'user.context_processors.login_modal_form',
+                "django.contrib.messages.context_processors.messages"
             ],
         },
     },
@@ -85,8 +104,15 @@ WSGI_APPLICATION = "web.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        # "ENGINE": "django.db.backends.sqlite3",
+        # "NAME": BASE_DIR / "db.sqlite3",
+        'ENGINE': 'djongo',
+        'NAME': 'forum_db',  # 数据库名称
+        'ENFORCE_SCHEMA': False,
+        'CLIENT': {
+            #'host': 'mongodb://username:password@host:port/database'  # MongoDB 连接 URI
+            'host': 'mongodb://dbadmin:web2024@www.gnetwork.space:27017/forum_db?authSource=forum_db'
+        }
     }
 }
 """
@@ -148,8 +174,6 @@ MEDIA_ROOT = BASE_DIR /'media'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 # 配置ckeditor
 CKEDITOR_UPLOAD_PATH = 'upload/'
 
@@ -208,3 +232,6 @@ EMAIL_HOST_USER = '2450482920@qq.com'
 EMAIL_HOST_PASSWORD = 'spgsbncqjncjecab' # 授权码
 EMAIL_SUBJECT_PREFIX = 'xxxx'
 EMAIL_USE_TLS = True  # 与SMTP服务器通信时，是否启动TLS链接(安全链接)
+
+DJONGO_TABLE_PREFIX = ''
+DJONGO_TABLE_SUFFIX = ''

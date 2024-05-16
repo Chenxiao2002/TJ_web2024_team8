@@ -1,27 +1,26 @@
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import User
-from .models import Profile
+# from django.contrib import admin
+# from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+# from django.contrib.auth.models import User as BaseUser
+# from .models import User
 
 
-class ProfileInline(admin.StackedInline):
-    model = Profile
-    can_delete = False
+# class UserAdmin(BaseUserAdmin):
+#     list_display = ('username', 'nickname', 'email', 'is_staff', 'is_active', 'is_superuser', 'level')
+#     fieldsets = (
+#         (None, {'fields': ('username', 'password')}),
+#         ('Personal info', {'fields': ('first_name', 'last_name', 'email', 'avatar', 'signature', 'nickname', 'level')}),
+#         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+#         ('Important dates', {'fields': ('last_login', 'date_joined')}),
+#     )
+#     add_fieldsets = (
+#         (None, {
+#             'classes': ('wide',),
+#             'fields': ('username', 'email', 'password1', 'password2'),
+#         }),
+#         ('Personal Info', {'fields': ('nickname', 'avatar', 'signature', 'level')}),
+#     )
 
-class UserAdmin(BaseUserAdmin):
-    inlines = (ProfileInline, )
-    list_display = ('username', 'nickname', 'email', 'is_staff', 'is_active', 'is_superuser','level')
-
-    def nickname(self, obj):
-        return obj.profile.nickname
-    def level(self, obj):
-        return obj.profile.level
-    nickname.short_description = '昵称'
-
-# Re-register UserAdmin
-admin.site.unregister(User)
-admin.site.register(User, UserAdmin)
-
-@admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'nickname','level')
+# # 注销旧的 UserAdmin，如果已经注册过的话
+# admin.site.unregister(BaseUser)
+# # 重新注册更新后的 UserAdmin
+# admin.site.register(User, UserAdmin)
