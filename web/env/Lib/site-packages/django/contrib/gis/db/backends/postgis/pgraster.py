@@ -149,4 +149,5 @@ def to_pgraster(rast):
         # Add packed header and band data to result
         result += bandheader + band.data(as_memoryview=True)
 
-    return result
+    # Convert raster to hex string before passing it to the DB.
+    return result.hex()

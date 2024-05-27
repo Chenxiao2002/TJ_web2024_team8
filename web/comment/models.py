@@ -24,10 +24,11 @@ class Comment(models.Model):
     #parent_comment是对应的父评论，如果是回复的话
     parent_comment = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
     
+    #这个字段是关联自己的，用于判断是不是回复的评论
     root = models.ForeignKey('self', related_name='root_comment', null=True, on_delete=models.CASCADE)
     
     # parent = models.ForeignKey('self', related_name='parent_comment', null=True, on_delete=models.CASCADE)
-    reply_to = models.ForeignKey(User, related_name="replies", null=True, on_delete=models.CASCADE)
+    reply_to = models.ForeignKey(User, related_name="replies", null=True, on_delete=models.CASCADE)#回复的对象
     
     def __str__(self):
         return self.text

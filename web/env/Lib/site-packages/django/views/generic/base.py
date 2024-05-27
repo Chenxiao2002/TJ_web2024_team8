@@ -1,6 +1,5 @@
+import asyncio
 import logging
-
-from asgiref.sync import iscoroutinefunction, markcoroutinefunction
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http import (
@@ -69,8 +68,8 @@ class View:
         ]
         if not handlers:
             return False
-        is_async = iscoroutinefunction(handlers[0])
-        if not all(iscoroutinefunction(h) == is_async for h in handlers[1:]):
+        is_async = asyncio.iscoroutinefunction(handlers[0])
+        if not all(asyncio.iscoroutinefunction(h) == is_async for h in handlers[1:]):
             raise ImproperlyConfigured(
                 f"{cls.__qualname__} HTTP handlers must either be all sync or all "
                 "async."
@@ -118,7 +117,7 @@ class View:
 
         # Mark the callback if the view class is async.
         if cls.view_is_async:
-            markcoroutinefunction(view)
+            view._is_coroutine = asyncio.coroutines._is_coroutine
 
         return view
 

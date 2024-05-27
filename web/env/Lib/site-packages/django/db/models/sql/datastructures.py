@@ -2,7 +2,6 @@
 Useful auxiliary data structures for query construction. Not useful outside
 the SQL domain.
 """
-from django.core.exceptions import FullResultSet
 from django.db.models.sql.constants import INNER, LOUTER
 
 
@@ -101,11 +100,8 @@ class Join:
             join_conditions.append("(%s)" % extra_sql)
             params.extend(extra_params)
         if self.filtered_relation:
-            try:
-                extra_sql, extra_params = compiler.compile(self.filtered_relation)
-            except FullResultSet:
-                pass
-            else:
+            extra_sql, extra_params = compiler.compile(self.filtered_relation)
+            if extra_sql:
                 join_conditions.append("(%s)" % extra_sql)
                 params.extend(extra_params)
         if not join_conditions:

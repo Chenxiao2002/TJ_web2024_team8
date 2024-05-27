@@ -177,14 +177,9 @@ class BaseDatabaseIntrospection:
         """
         Return the name of the primary key column for the given table.
         """
-        columns = self.get_primary_key_columns(cursor, table_name)
-        return columns[0] if columns else None
-
-    def get_primary_key_columns(self, cursor, table_name):
-        """Return a list of primary key columns for the given table."""
         for constraint in self.get_constraints(cursor, table_name).values():
             if constraint["primary_key"]:
-                return constraint["columns"]
+                return constraint["columns"][0]
         return None
 
     def get_constraints(self, cursor, table_name):

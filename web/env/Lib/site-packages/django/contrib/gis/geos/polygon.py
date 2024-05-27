@@ -110,7 +110,8 @@ class Polygon(GEOSGeometry):
         if isinstance(param, LinearRing):
             return param
         try:
-            return LinearRing(param)
+            ring = LinearRing(param)
+            return ring
         except TypeError:
             raise TypeError(msg)
 

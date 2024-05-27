@@ -13,8 +13,8 @@ class Wheel:
     """A wheel file"""
 
     wheel_file_re = re.compile(
-        r"""^(?P<namever>(?P<name>[^\s-]+?)-(?P<ver>[^\s-]*?))
-        ((-(?P<build>\d[^-]*?))?-(?P<pyver>[^\s-]+?)-(?P<abi>[^\s-]+?)-(?P<plat>[^\s-]+?)
+        r"""^(?P<namever>(?P<name>.+?)-(?P<ver>.*?))
+        ((-(?P<build>\d[^-]*?))?-(?P<pyver>.+?)-(?P<abi>.+?)-(?P<plat>.+?)
         \.whl|\.dist-info)$""",
         re.VERBOSE,
     )
@@ -58,10 +58,7 @@ class Wheel:
         :raises ValueError: If none of the wheel's file tags match one of
             the supported tags.
         """
-        try:
-            return next(i for i, t in enumerate(tags) if t in self.file_tags)
-        except StopIteration:
-            raise ValueError()
+        return min(tags.index(tag) for tag in self.file_tags if tag in tags)
 
     def find_most_preferred_tag(
         self, tags: List[Tag], tag_to_priority: Dict[Tag, int]

@@ -130,7 +130,7 @@ class RedisCacheClient:
         return bool(client.exists(key))
 
     def incr(self, key, delta):
-        client = self.get_client(key, write=True)
+        client = self.get_client(key)
         if not client.exists(key):
             raise ValueError("Key '%s' not found." % key)
         return client.incr(key, delta)
@@ -214,8 +214,6 @@ class RedisCache(BaseCache):
         return self._cache.incr(key, delta)
 
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
-        if not data:
-            return []
         safe_data = {}
         for key, value in data.items():
             key = self.make_and_validate_key(key, version=version)
@@ -224,9 +222,10 @@ class RedisCache(BaseCache):
         return []
 
     def delete_many(self, keys, version=None):
-        if not keys:
-            return
-        safe_keys = [self.make_and_validate_key(key, version=version) for key in keys]
+        safe_keys = []
+        for key in keys:
+            key = self.make_and_validate_key(key, version=version)
+            safe_keys.append(key)
         self._cache.delete_many(safe_keys)
 
     def clear(self):

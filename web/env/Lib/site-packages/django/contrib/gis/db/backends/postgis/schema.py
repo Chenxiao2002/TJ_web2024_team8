@@ -50,16 +50,12 @@ class PostGISSchemaEditor(DatabaseSchemaEditor):
             expressions=expressions,
         )
 
-    def _alter_column_type_sql(
-        self, table, old_field, new_field, new_type, old_collation, new_collation
-    ):
+    def _alter_column_type_sql(self, table, old_field, new_field, new_type):
         """
         Special case when dimension changed.
         """
         if not hasattr(old_field, "dim") or not hasattr(new_field, "dim"):
-            return super()._alter_column_type_sql(
-                table, old_field, new_field, new_type, old_collation, new_collation
-            )
+            return super()._alter_column_type_sql(table, old_field, new_field, new_type)
 
         if old_field.dim == 2 and new_field.dim == 3:
             sql_alter = self.sql_alter_column_to_3d
@@ -73,7 +69,6 @@ class PostGISSchemaEditor(DatabaseSchemaEditor):
                 % {
                     "column": self.quote_name(new_field.column),
                     "type": new_type,
-                    "collation": "",
                 },
                 [],
             ),

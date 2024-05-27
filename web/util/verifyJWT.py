@@ -4,8 +4,8 @@ import jwt
 from django.http import JsonResponse
 from jwt import exceptions
 
-import Server01.models as models
-from webServer.settings import SECRET_KEY
+import comment.models as models
+SECRET_KEY = "django-insecure-h)k+5=#(nkfv3o^-o5+_at807f#kf4_l_e(#u8-3%av)4%xz$3"
 
 
 def authenticate_request(view_func):

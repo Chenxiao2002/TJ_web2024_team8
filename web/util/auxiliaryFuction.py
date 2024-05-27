@@ -2,8 +2,8 @@ import os
 
 import pytz
 
-import Server01.models as models
-from webServer.settings import TIME_ZONE
+import comment.models as models
+TIME_ZONE="Asia/Shanghai"
 
 
 # 更换时区
