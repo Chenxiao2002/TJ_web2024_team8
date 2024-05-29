@@ -125,6 +125,7 @@ const handleClick = (tab) => {
 
 <template>
   <div>
+    <!-- 标签页提供选项卡功能 -->
     <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
       <el-tab-pane label="所有" name="first" ></el-tab-pane>
       <el-tab-pane label="日常" name="second"></el-tab-pane>
@@ -141,6 +142,7 @@ const handleClick = (tab) => {
       <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-distance="200">
         <home-card :card_columns="card_columns" @show-detail="showMessage" ref="homeCardRef"></home-card>
       </div>
+      <!-- 打开卡片帖子的过渡动画 -->
       <transition
           name="fade"
           @before-enter="onBeforeEnter"
