@@ -2,8 +2,9 @@ import datetime
 import jwt
 from django.http import JsonResponse
 from jwt import exceptions
-from .models import User
+from .models import *
 from web.settings import SECRET_KEY
+from comment.models import *
 
 def authenticate_request(view_func):
     def wrapper(request, *args, **kwargs):
@@ -31,7 +32,7 @@ def create_token(user):
     }
     # 构造payload
     payload = {
-        'user_id': user.id,
+        'user_id': str(user._id),
         'username': user.username,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=3600, days=5)  # 设置过期时间
     }
@@ -40,25 +41,36 @@ def create_token(user):
 
 # 检查邮箱
 def check_email(email):
-    return User.objects.filter(email=email).exists()
+    user=User.objects.filter(email=email).first()
+    if user:
+        return True
+    else:
+        return False
 
 # 整合主页帖子的信息
 def combine_index_post(posts):
     for post in posts:
-        imgs = post.imgs.all()
+        img0=Image.objects.filter(pid=str(post._id)).first()
+        image0_path=""
+        image0_height,image0_width=0,0
+        if img0:
+            image0_path=img0.imagePath
+            image0_height=img0.height
+            image0_width=img0.width
+        user=User.objects.filter(_id=ObjectId(post.uid)).first()
         info = {
             'title': post.title,
-            'id': post.id,
-            'img': imgs[0].imagePath,
+            'id': str(post._id),
+            'img': image0_path,
             'img_info': {
-                'height': imgs[0].height,
-                'width': imgs[0].width,
+                'height': image0_height,
+                'width': image0_width,
             },
             'load': False,
             'user': {
-                'id': post.user.id,
-                'username': post.user.username,
-                'avatar': post.user.avatar
+                'id': str(user._id),
+                'username': user.username,
+                'avatar': user.avatar
             }
         }
         yield info
@@ -88,12 +100,12 @@ def get_user_post_info(posts, offset):
     info = [{
         'date': convert_to_timezone(post.created_at, TIME_ZONE),
         'title': post.title,
-        'likeCount': post.favoritePosts.count(),
-        'collectCount': post.collectedPosts.count(),
-        'commentCount': post.comments.count(),
+        'likeCount': Favorites.objects.filter(pid=str(post._id)).count(),
+        'collectCount': Collects.objects.filter(pid=str(post._id)).count(),
+        'commentCount': Comment.objects.filter(pid=str(post._id)).count(),
         'content': post.content,
-        'id': post.id,
-        'username': post.user.username,
+        'id': post._id,
+        'username': User.objects.filter(_id=ObjectId(post.uid)).first().username,
     } for post in clear_posts if post]
     return info
 
@@ -103,10 +115,10 @@ def get_user_info(users, offset):
         {
             'username': user.username,
             'avatar': user.avatar,
-            'id': user.id,
-            'fans': user.beFocusOn.count(),
-            'follow': user.following.count(),
-            'note': user.posts.count()
+            'id': str(user._id),
+            'fans': Follows.objects.filter(lid=str(user._id)).count(),
+            'follow': Follows.objects.filter(fid=str(user._id)).count(),
+            'note': Post.objects.filter(uid=str(user._id)).count()
         } for user in clear_users
     ]
     return info

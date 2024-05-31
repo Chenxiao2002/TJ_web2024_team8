@@ -1,24 +1,14 @@
-from django.db import models
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
+from djongo import models
+from bson import ObjectId
 
-# Create your models here.
 class Comment(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
-
-    text = models.TextField()
-    comment_time = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, related_name="comments", on_delete=models.CASCADE)
-
-    root = models.ForeignKey('self', related_name='root_comment', null=True, on_delete=models.CASCADE)
-    parent = models.ForeignKey('self', related_name='parent_comment', null=True, on_delete=models.CASCADE)
-    reply_to = models.ForeignKey(User, related_name="replies", null=True, on_delete=models.CASCADE)
-    
-    def __str__(self):
-        return self.text
-
+    """ 评论表 """
+    _id = models.ObjectIdField()
+    pid = models.CharField(max_length=24, verbose_name='帖子ID', null=False)
+    uid = models.CharField(max_length=24, verbose_name='用户ID', null=False)
+    content = models.TextField(max_length=3000, verbose_name='评论', null=False)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    parent_cid = models.CharField(max_length=24, verbose_name='上级评论ID', null=False)
     class Meta:
-        ordering = ['comment_time']
+        db_table = 'Comment'
+

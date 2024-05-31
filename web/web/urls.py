@@ -27,7 +27,7 @@ urlpatterns = [
     #path('blog/', include('blog.urls')),
     #path('comment/', include('comment.urls')),
     #path('likes/', include('likes.urls')),
-    path('user/', include('user.urls')),
+    path('', include('user.urls')),
     #path('search/', views.search, name="search"),
 ]
 
