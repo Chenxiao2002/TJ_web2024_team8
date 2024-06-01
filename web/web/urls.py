@@ -22,13 +22,9 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
-    #path('admin/', admin.site.urls),
-    #path('ckeditor', include('ckeditor_uploader.urls')),
-    #path('blog/', include('blog.urls')),
-    #path('comment/', include('comment.urls')),
-    #path('likes/', include('likes.urls')),
     path('', include('user.urls')),
-    #path('search/', views.search, name="search"),
+    path('', include('post.urls')),
+    path('', include('comment.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

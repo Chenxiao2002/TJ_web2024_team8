@@ -1,49 +1,79 @@
-# from django.shortcuts import render, redirect
-# from django.contrib.contenttypes.models import ContentType
-# from django.urls import reverse
-# from django.http import JsonResponse
-# from .models import Comment
-# from .forms import CommentForm
-# from user.models import Profile
+import json
+from django.db.models import Count
+from django.http import JsonResponse
+from .models import Comment
+from user.models import User
+from user.utils import filter_querySet,authenticate_request
+from post.utils import convert_to_timezone
+from web.settings import TIME_ZONE
+from bson import ObjectId
 
+#发布评论
+@authenticate_request 
+def do_comment(request, verify_payload):
+    data = json.loads(request.body)
+    user_id = verify_payload['user_id']
+    post_id = data['post_id']
+    content = data['content']
+    if 'parent_comment_id' in data:
+        parent_cid=data['parent_comment_id']
+    else:
+        parent_cid='#'
+    comment = Comment.objects.create(uid=user_id,pid=post_id,content=content,parent_cid=parent_cid)
+    return JsonResponse({'info': '评论已发送！', 'id': str(comment._id)}, status=200)
 
-# def update_comment(request):
-#     referer = request.META.get('HTTP_REFERER', reverse('home'))
-#     comment_form = CommentForm(request.POST, user=request.user)
-#     data = {}
+#获取主评
+def get_comment(request):
+    data = json.loads(request.body)
+    post_id = data['id']
+    offset = data['offset']
+    comments = Comment.objects.filter(pid=post_id, parent_cid='#')
+    filter_comments = filter_querySet(comments, offset, limit=5)
+    if filter_comments:
+        data=[]
+        for comment in filter_comments:
+            if comment:
+                user=User.objects.filter(_id=ObjectId(comment.uid)).first()
+                reply_count=Comment.objects.filter(parent_cid=str(comment._id)).count()
+                comment_data={
+                    'id': str(comment._id),
+                    'content': comment.content,
+                    'createTime': convert_to_timezone(comment.created_at, TIME_ZONE),
+                    'user': {
+                        'id': comment.uid,
+                        'username': user.username,
+                        'avatar': user.avatar
+                    },
+                    'replyCount': reply_count,
+                    'replies': []
+                }
+                data.append(comment_data)
+        return JsonResponse({'info': data}, status=200)
+    return JsonResponse({'info': []}, status=200)
 
-#     if comment_form.is_valid():
-#         # 检查通过，保存数据
-#         comment = Comment()
-#         comment.user = comment_form.cleaned_data['user']
-#         comment.text = comment_form.cleaned_data['text']
-#         comment.content_object = comment_form.cleaned_data['content_object']
-
-#         parent = comment_form.cleaned_data['parent']
-#         if not parent is None:
-#             comment.root = parent.root if not parent.root is None else parent
-#             comment.parent = parent
-#             comment.reply_to = parent.user
-#         comment.save()
-
-#         profile, created = Profile.objects.get_or_create(user=request.user)
-#         profile.level+=50
-#         profile.save()
-
-#         # 返回数据
-#         data['status'] = 'SUCCESS'
-#         data['username'] = comment.user.get_nickname_or_username()
-#         data['comment_time'] = comment.comment_time.timestamp()
-#         data['text'] = comment.text
-#         data['content_type'] = ContentType.objects.get_for_model(comment).model
-#         if not parent is None:
-#             data['reply_to'] = comment.reply_to.get_nickname_or_username()
-#         else:
-#             data['reply_to'] = ''
-#         data['pk'] = comment.pk
-#         data['root_pk'] = comment.root.pk if not comment.root is None else ''
-#     else:
-#         #return render(request, 'error.html', {'message': comment_form.errors, 'redirect_to': referer})
-#         data['status'] = 'ERROR'
-#         data['message'] = list(comment_form.errors.values())[0][0]
-#     return JsonResponse(data)
+#获取子评
+def load_reply(request):
+    data = json.loads(request.body)
+    id = data['id']
+    offset = data['offset']
+    comment = Comment.objects.filter(_id=ObjectId(id)).first()
+    if comment:
+        replies = Comment.objects.filter(parent_cid=str(comment._id))
+        filter_replies = filter_querySet(replies, offset, limit=5)
+        data=[]
+        for reply in filter_replies:
+            if reply:
+                user=User.objects.filter(_id=ObjectId(reply.uid)).first()
+                reply_data={
+                    'id': str(reply._id),
+                    'content': reply.content,
+                    'createTime': convert_to_timezone(reply.created_at, TIME_ZONE),
+                    'user': {
+                        'id': str(user._id),
+                        'username': user.username,
+                        'avatar': user.avatar
+                    },
+                }
+                data.append(reply_data)
+        return JsonResponse({'info': data, 'count': len(data)}, status=200)
+    return JsonResponse({'error': '错误的操作'}, status=404)

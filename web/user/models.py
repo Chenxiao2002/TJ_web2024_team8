@@ -40,16 +40,6 @@ class Collects(models.Model):
     class Meta:
         db_table = 'Collects'
 
-class Post(models.Model):
-    """ 帖子表 """
-    _id = models.ObjectIdField()
-    uid = models.CharField(max_length=24, verbose_name='用户ID', null=False)
-    title = models.CharField(max_length=64, verbose_name='标题')
-    content = models.TextField(max_length=3000, verbose_name='内容', null=True)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
-    class Meta:
-        db_table = 'Post'  # 指定集合名称为 'Post'
-
 class Image(models.Model):
     _id = models.ObjectIdField()
     pid = models.CharField(max_length=24, verbose_name='帖子ID', null=False)

@@ -8,15 +8,12 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.http import JsonResponse
 from django.core.mail import send_mail
-#from .forms import LoginForm, RegForm, ChangeNicknameForm, BindEmailForm, ChangePasswordForm, ForgotPasswordForm
 from .models import *
-#from blog.models import Blog,BlogType
+from post.models import Post
 from django.core.paginator import Paginator
 from .utils import *
-from web.settings import BASE_DIR
+from web.settings import SYSTEM_PATH
 from bson import ObjectId
-
-IMG_DIR=BASE_DIR/'img' #需要最后确定头像存储路径，先瞎编一个
 
 # 用户登录
 def login(request):

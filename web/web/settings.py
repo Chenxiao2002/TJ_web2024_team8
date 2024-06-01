@@ -37,14 +37,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    #'ckeditor',
-    #'ckeditor_uploader',
-    #'blog',
-    #'read_statistics',
     'comment',
-    #'likes',
     'user',
-    #'cache',
+    'post',
     'corsheaders'
 ]
 
@@ -235,3 +230,6 @@ EMAIL_USE_TLS = True  # 与SMTP服务器通信时，是否启动TLS链接(安全
 
 DJONGO_TABLE_PREFIX = ''
 DJONGO_TABLE_SUFFIX = ''
+
+# 配置保存文件路径
+SYSTEM_PATH = ''
