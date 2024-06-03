@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views as post
 
 urlpatterns =[
     path('post/', post.query_post_index),

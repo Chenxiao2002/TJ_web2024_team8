@@ -6,6 +6,7 @@ from django.db.models import Sum,Q
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.urls import reverse
+from django.http import JsonResponse
 #from read_statistics.utils import get_seven_days_read_data, get_today_hot_data, get_yesterday_hot_data
 #from blog.models import Blog
 
@@ -42,7 +43,8 @@ def home(request):
     context['yesterday_hot_data'] = None
     context['hot_blogs_for_7_days'] = None
 
-    return render(request, 'home.html', context)
+    #return render(request, 'home.html', context)
+    return JsonResponse({'message': 'Welcome to the Django API'}, status=200)
 
 # def search(request):
 #     search_words = request.GET.get('wd', '').strip()
