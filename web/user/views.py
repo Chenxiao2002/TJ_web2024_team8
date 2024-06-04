@@ -22,6 +22,7 @@ from django.views.decorators.http import require_http_methods
 @require_http_methods(["POST"])
 def login(request):
     try:
+        print("receive login request",request.body)
         data = json.loads(request.body)
         email = data.get('email')
         password = data.get('password')
@@ -29,9 +30,9 @@ def login(request):
             return JsonResponse({'error': '缺少必要的邮箱或密码'}, status=400)
         user = User.objects.filter(email=email, password=password).first()
         if user:
-            token = create_token(user)
+            token = create_token(user)#生成token
             user_data = {
-                'id': str(user.id),
+                'id': str(user._id),
                 'username': user.username,
                 'avatar': user.avatar,
                 'signature': user.signature,
@@ -40,7 +41,8 @@ def login(request):
             return JsonResponse(user_data, status=200)
         return JsonResponse({'error': '邮箱或密码错误'}, status=401)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        print("login error",str(e))
+        return JsonResponse({'error': str(e)}, status=400)#这个情况是服务器错误
 
 # 用户注册
 def register(request):
@@ -156,7 +158,7 @@ def remove_fans(request, payload):
 def query_user_index(request):
     try:
         data = json.loads(request.body)
-        user_id = data.get('id')
+        user_id = data.get('_id')
         if user_id and user_id != 'undefined':
             user = User.objects.filter(id=ObjectId(user_id)).first()
             if user:

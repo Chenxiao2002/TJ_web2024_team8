@@ -22,9 +22,10 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('', include('user.urls')),
-    path('', include('post.urls')),
-    path('', include('comment.urls')),
+    path('user/', include('user.urls')),  # 为user应用设置前缀
+    path('post/', include('post.urls')),  # 为post应用设置前缀
+    path('comment/', include('comment.urls')),  # 为comment应用设置前缀
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
