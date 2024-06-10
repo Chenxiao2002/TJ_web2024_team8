@@ -83,20 +83,21 @@ def update_avatar(request, payload):
     try:
         file = request.FILES['file']
         user_id = payload['user_id']
-        file_path = SYSTEM_PATH + '/avatar/' + user_id + '-' + file.name
-        check_and_delete(id=user_id, mainPath=SYSTEM_PATH + '/avatar/')
+        file_path = SYSTEM_PATH + '\\avatar\\' + str(user_id) + '-' + file.name
+        check_and_delete(id=user_id, mainPath=SYSTEM_PATH + '\\avatar')
         with open(file_path, 'wb') as destination:
             for chunk in file.chunks():
                 destination.write(chunk)
         result = {
             'filename': file.name,
-            'filepath': 'http://localhost:8000/static/img/avatar/' + user_id + '-' + file.name,
+            'filepath': 'http://localhost:8000/static/img/avatar/' + str(user_id) + '-' + file.name,
         }
-        user = User.objects.filter(id=ObjectId(user_id)).first()
+        user = User.objects.filter(_id=ObjectId(user_id)).first()
         user.avatar = result['filepath']
         user.save()
         return JsonResponse({'info': result}, status=200)
     except Exception as e:
+        print("update_avatar error:", e)
         return JsonResponse({'error': str(e)}, status=400)
 
 # 修改用户信息

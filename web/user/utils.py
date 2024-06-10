@@ -8,6 +8,7 @@ from comment.models import *
 from web.settings import TIME_ZONE
 from post.utils import convert_to_timezone
 from post.models import *
+import os
 
 def authenticate_request(view_func):
     def wrapper(request, *args, **kwargs):
@@ -110,7 +111,7 @@ def get_user_post_info(posts, offset):
         'collectCount': Collects.objects.filter(pid=str(post._id)).count(),
         'commentCount': Comment.objects.filter(pid=str(post._id)).count(),
         'content': post.content,
-        'id': post._id,
+        'id': str(post._id),
         'username': User.objects.filter(_id=ObjectId(post.uid)).first().username,
     } for post in clear_posts if post]
     return info
