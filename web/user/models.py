@@ -3,7 +3,7 @@ from bson import ObjectId
 
 class User(models.Model):
     """ 用户表 """
-    _id = models.ObjectIdField()
+    _id = models.ObjectIdField(primary_key=True, default=ObjectId, editable=False)
     email = models.CharField(max_length=32, verbose_name='邮箱', null=False, default='123@123.com')
     username = models.CharField(max_length=32, verbose_name='用户名', null=False)
     password = models.CharField(max_length=64, verbose_name='密码', null=False)

@@ -5,6 +5,9 @@ from jwt import exceptions
 from .models import *
 from web.settings import SECRET_KEY
 from comment.models import *
+from web.settings import TIME_ZONE
+from post.utils import convert_to_timezone
+from post.models import *
 
 def authenticate_request(view_func):
     def wrapper(request, *args, **kwargs):
@@ -87,11 +90,14 @@ def check_and_delete(*, id, mainPath):
 
 def filter_querySet(querySet, offset, limit=20):
     limit = limit  # 每页显示的帖子数量
-    count = querySet.count()
+    if isinstance(querySet, list):
+        count = len(querySet)
+    else:
+        count = querySet.count()
     if 0 <= offset < count:
         start = offset
         end = offset + limit
-        filterQuerySet = querySet.order_by('-id')[start:end]
+        filterQuerySet = querySet.order_by('_id')[start:end]
         return filterQuerySet
     return []
 

@@ -17,6 +17,7 @@ from .utils import *
 from web.settings import SYSTEM_PATH, TIME_ZONE
 from bson import ObjectId
 from django.views.decorators.http import require_http_methods
+from bson import json_util
 
 # 用户登录
 @require_http_methods(["POST"])
@@ -73,6 +74,7 @@ def get_user_focus(request, payload):
             'follow': fo_ids, 'collected': co_ids, 'favorites': fa_ids
         }}, status=200)
     except Exception as e:
+        print("get_user_focus error:", e)
         return JsonResponse({'error': str(e)}, status=400)
 
 # 上传头像
@@ -81,8 +83,8 @@ def update_avatar(request, payload):
     try:
         file = request.FILES['file']
         user_id = payload['user_id']
-        file_path = SYSTEM_PATH + 'avatar/' + user_id + '-' + file.name
-        check_and_delete(id=user_id, mainPath=SYSTEM_PATH + 'avatar/')
+        file_path = SYSTEM_PATH + '/avatar/' + user_id + '-' + file.name
+        check_and_delete(id=user_id, mainPath=SYSTEM_PATH + '/avatar/')
         with open(file_path, 'wb') as destination:
             for chunk in file.chunks():
                 destination.write(chunk)
@@ -158,15 +160,15 @@ def remove_fans(request, payload):
 def query_user_index(request):
     try:
         data = json.loads(request.body)
-        user_id = data.get('_id')
+        user_id = data.get('id')
         if user_id and user_id != 'undefined':
-            user = User.objects.filter(id=ObjectId(user_id)).first()
+            user = User.objects.filter(_id=ObjectId(user_id)).first()
             if user:
                 fans_count = Follows.objects.filter(lid=user_id).count()
                 focus_count = Follows.objects.filter(fid=user_id).count()
                 posts_count = Post.objects.filter(uid=user_id).count()
                 author = {
-                    'id': str(user.id),
+                    'id': str(user._id),
                     'username': user.username,
                     'avatar': user.avatar,
                     'signature': user.signature,
@@ -178,6 +180,7 @@ def query_user_index(request):
             return JsonResponse({'error': '错误的访问'}, status=404)
         return JsonResponse({'error': '非法访问'}, status=404)
     except Exception as e:
+        print("query_user_index error:", e)
         return JsonResponse({'error': str(e)}, status=400)
 
 # 用户主页帖子
@@ -188,18 +191,22 @@ def query_user_index_post(request):
             '点赞': 'favorites',
             '收藏': 'collected',
         }
+        #print("query_user_index_post",request.body)
         data = json.loads(request.body)
         user_id = data['user_id']
         types = data['types']
         offset = data['offset']
-        user = User.objects.filter(id=ObjectId(user_id)).first()
+        user = User.objects.filter(_id=ObjectId(user_id)).first()
         if user and types in type_mapping:
+            #print("query_user_index_post",types)
             field_name = type_mapping[types]
             postObj = []
             if field_name == 'posts':
-                postObj = Post.objects.filter(uid=user_id)
+                postObj = Post.objects.filter(uid=user_id)#filter是一个查询集
+                print("postObjtype",type(postObj))
             elif field_name == 'favorites':
                 favorite_records = Favorites.objects.filter(uid=user_id)
+                #print("favorite_records",favorite_records)
                 for favorite_record in favorite_records:
                     pid = favorite_record.pid
                     post = Post.objects.filter(id=ObjectId(pid)).first()
@@ -210,6 +217,7 @@ def query_user_index_post(request):
                 for collect_record in collect_records:
                     pid = collect_record.pid
                     post = Post.objects.filter(id=ObjectId(pid)).first()
+                    #print("post",post)
                     if post:
                         postObj.append(post)
             posts = filter_querySet(postObj, offset, limit=10)
@@ -218,6 +226,7 @@ def query_user_index_post(request):
             return JsonResponse({'info': []}, status=200)
         return JsonResponse({'error': '错误访问'}, status=404)
     except Exception as e:
+        print("query_user_index_post error:", e)
         return JsonResponse({'error': str(e)}, status=400)
 
 # 用户管理页面数据获取
@@ -227,8 +236,9 @@ def user_control_index(request, payload):
         user_id = payload['user_id']
         data = json.loads(request.body)
         offset = data['offset']
+        print("offset",offset)
         types = data['types']
-        user = User.objects.filter(id=ObjectId(user_id)).first()
+        user = User.objects.filter(_id=ObjectId(user_id)).first()
         if user:
             user_data = []
             if types == 'posts':
@@ -246,7 +256,7 @@ def user_control_index(request, payload):
                 favorite_records = Favorites.objects.filter(uid=user_id)
                 for favorite_record in favorite_records:
                     pid = favorite_record.pid
-                    post = Post.objects.filter(id=ObjectId(pid)).first()
+                    post = Post.objects.filter(_id=ObjectId(pid)).first()
                     if post:
                         user_data.append(post)
                 info = get_user_post_info(user_data, offset)
@@ -254,7 +264,7 @@ def user_control_index(request, payload):
                 fan_records = Follows.objects.filter(lid=user_id)
                 for fan_record in fan_records:
                     uid = fan_record.fid
-                    fan = User.objects.filter(id=ObjectId(uid)).first()
+                    fan = User.objects.filter(_id=ObjectId(uid)).first()
                     if fan:
                         user_data.append(fan)
                 info = get_user_info(user_data, offset)
@@ -262,7 +272,7 @@ def user_control_index(request, payload):
                 follow_records = Follows.objects.filter(fid=user_id)
                 for follow_record in follow_records:
                     uid = follow_record.lid
-                    follow = User.objects.filter(id=ObjectId(uid)).first()
+                    follow = User.objects.filter(_id=ObjectId(uid)).first()
                     if follow:
                         user_data.append(follow)
                 info = get_user_info(user_data, offset)
@@ -272,4 +282,5 @@ def user_control_index(request, payload):
             return JsonResponse({'info': info, 'total': total}, status=200)
         return JsonResponse({'error': '错误的操作'}, status=404)
     except Exception as e:
+        print("user_control_index error:", e)
         return JsonResponse({'error': str(e)}, status=400)

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -228,4 +229,5 @@ DJONGO_TABLE_PREFIX = ''
 DJONGO_TABLE_SUFFIX = ''
 
 # 配置保存文件路径
-SYSTEM_PATH = ''
+
+SYSTEM_PATH = 'E:\web_tech\TJ_web2024_team8\web\static\img'
