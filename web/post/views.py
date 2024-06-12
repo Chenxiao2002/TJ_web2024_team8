@@ -16,11 +16,12 @@ def query_post_index(request):
     offset = data['offset']
     query = data.get('query')
     if query:
-        posts = models.Post.objects.filter(
+        posts = Post.objects.filter(
             Q(title__icontains=query) |
-            Q(user__username__icontains=query) |
+            Q(_id__icontains=query) |
             Q(content__icontains=query)
         )
+        print("posts",posts)
     else:
         posts = Post.objects
     posts = filter_querySet(posts, offset, limit=10)
