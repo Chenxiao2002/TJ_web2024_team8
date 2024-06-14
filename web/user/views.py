@@ -120,13 +120,14 @@ def focusOn(request, payload):
     try:
         user_id = payload['user_id']
         follow_id = json.loads(request.body)['id']
-        user1 = User.objects.filter(id=ObjectId(user_id)).first()
-        user2 = User.objects.filter(id=ObjectId(follow_id)).first()
+        user1 = User.objects.filter(_id=ObjectId(user_id)).first()
+        user2 = User.objects.filter(_id=ObjectId(follow_id)).first()
         if user1 and user2:
             Follows.objects.create(fid=user_id, lid=follow_id)
             return JsonResponse({'info': '成功关注'}, status=200)
         return JsonResponse({'error': '非法的操作'}, status=401)
     except Exception as e:
+        print("fucus error",e)
         return JsonResponse({'error': str(e)}, status=400)
 
 # 取消关注
