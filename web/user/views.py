@@ -211,14 +211,14 @@ def query_user_index_post(request):
                 #print("favorite_records",favorite_records)
                 for favorite_record in favorite_records:
                     pid = favorite_record.pid
-                    post = Post.objects.filter(id=ObjectId(pid)).first()
+                    post = Post.objects.filter(_id=ObjectId(pid)).first()
                     if post:
                         postObj.append(post)
             else:
                 collect_records = Collects.objects.filter(uid=user_id)
                 for collect_record in collect_records:
                     pid = collect_record.pid
-                    post = Post.objects.filter(id=ObjectId(pid)).first()
+                    post = Post.objects.filter(_id=ObjectId(pid)).first()
                     #print("post",post)
                     if post:
                         postObj.append(post)

@@ -93,14 +93,21 @@ def filter_querySet(querySet, offset, limit=20):
     limit = limit  # 每页显示的帖子数量
     if isinstance(querySet, list):
         count = len(querySet)
+        if 0 <= offset < count:
+            start = offset
+            end = offset + limit
+            filterQuerySet = querySet[start:end]
+            return filterQuerySet
+        return []
     else:
         count = querySet.count()
-    if 0 <= offset < count:
-        start = offset
-        end = offset + limit
-        filterQuerySet = querySet.order_by('_id')[start:end]
-        return filterQuerySet
-    return []
+        if 0 <= offset < count:
+            start = offset
+            end = offset + limit
+            filterQuerySet = querySet.order_by('_id')[start:end]
+            return filterQuerySet
+        return []
+
 
 def get_user_post_info(posts, offset):
     clear_posts = filter_querySet(posts, offset, 10)
