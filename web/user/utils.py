@@ -41,6 +41,8 @@ def create_token(user):
         'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=3600, days=5)  # 设置过期时间
     }
     result = jwt.encode(payload=payload, key=SECRET_KEY, algorithm='HS256', headers=headers)
+    print("token:")
+    print(result)
     return result
 
 # 检查邮箱
@@ -64,6 +66,7 @@ def combine_index_post(posts):
         user=User.objects.filter(_id=ObjectId(post.uid)).first()
         info = {
             'title': post.title,
+            'category': post.category,
             'id': str(post._id),
             'img': image0_path,
             'img_info': {
@@ -114,6 +117,7 @@ def get_user_post_info(posts, offset):
     info = [{
         'date': convert_to_timezone(post.created_at, TIME_ZONE),
         'title': post.title,
+        'category': post.category,
         'likeCount': Favorites.objects.filter(pid=str(post._id)).count(),
         'collectCount': Collects.objects.filter(pid=str(post._id)).count(),
         'commentCount': Comment.objects.filter(pid=str(post._id)).count(),

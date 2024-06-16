@@ -8,5 +8,6 @@ class Post(models.Model):
     title = models.CharField(max_length=64, verbose_name='标题')
     content = models.TextField(max_length=3000, verbose_name='内容', null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    category = models.CharField(max_length=10, verbose_name='分类', null=True)
     class Meta:
         db_table = 'Post'  # 指定集合名称为 'Post'

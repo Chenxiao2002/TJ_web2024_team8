@@ -15,16 +15,22 @@ def query_post_index(request):
     data = json.loads(request.body)
     offset = data['offset']
     query = data.get('query')
+    category = data.get('category')
+    # 初始化查询集
+    posts = Post.objects.all()
+    #分类筛选
+    if category:
+        posts = Post.objects.filter(category=category)
+    #关键词查询（有分类则在分类中查询）
     if query:
-        posts = Post.objects.filter(
-            Q(title__icontains=query) |
-            Q(_id__icontains=query) |
-            Q(content__icontains=query)
-        )
-        print("posts",posts)
-    else:
-        posts = Post.objects
+            posts = posts.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query)
+            )
+            print("posts",posts)
+    #分页处理        
     posts = filter_querySet(posts, offset, limit=10)
+    #返回响应
     if posts:
         return JsonResponse({'info': list(combine_index_post(posts))}, status=200)
     return JsonResponse({'info': []}, status=200)
@@ -46,6 +52,7 @@ def get_post_detail(request):
                 'username': user.username,
                 'avatar': user.avatar
             },
+            'category': post.category,
             'createTime': convert_to_timezone(post.created_at, TIME_ZONE),
             'likeCount': Favorites.objects.filter(pid=str(post._id)).count(),
             'collectCount': Collects.objects.filter(pid=str(post._id)).count(),
@@ -95,12 +102,13 @@ def control_like_collect(request, payload):
 
 # 用户上传帖子
 @authenticate_request
-def upload_post_info(request, payload):
+def upload_post_info(request,payload):
     data = json.loads(request.body)
     post = Post.objects.create(
         title=data.get('title'),
         content=data.get('content'),
-        uid=data.get('user_id')
+        uid=data.get('user_id'),
+        category=data.get('category')
     )
     return JsonResponse({'data': 'success', 'info': str(post._id)}, status=200)
 
