@@ -1,65 +1,88 @@
 <template>
-        <div v-if="followers.length === 0">
-      <el-empty description="现在还没有关注消息..." />
+  <div ref="loadingContainer" class="collection-container">
+    <div v-if="followers.length === 0 && !loading">
+      <el-empty description="现在还没有点赞消息..." />
     </div>
-  <div>
+    <div v-else>
     <ul class="agree-container">
-      <li class="agree-item" v-for="follower in followers" :key="follower.id">
+      <li class="agree-item" v-for="follower in followers" :key="follower.createTime">
         <a class="user-avatar">
-          <img class="avatar-item" :src="follower.avatarUrl" />
+          <img class="avatar-item" :src="follower.avatar" />
         </a>
         <div class="main">
           <div class="info">
             <div class="user-info">
-              <a>{{ follower.name }}</a>
+              <a>{{ follower.username }}</a>
             </div>
-            <div class="interaction-hint"><span>开始关注您了&nbsp;</span><span>{{ formatDate(follower.followedAt) }}</span></div>
+            <div class="interaction-hint"><span>开始关注您了&nbsp;</span><span>{{ formatDate(follower.createTime) }}</span></div>
           </div>
           <div class="extra">
             <button
               class="reds-button-new follow-button large"
-              :class="{'primary': !follower.isMutual, 'mutual': follower.isMutual}"
+              :class="{'primary': !follower.back, 'mutual': follower.back}"
               @click="toggleFollow(follower)"
             >
-              <span class="reds-button-new-box"><span class="reds-button-new-text">{{ follower.isMutual ? '互相关注' : '回关' }}</span></span>
+              <span class="reds-button-new-box"><span class="reds-button-new-text">{{ follower.back ? '互相关注' : '回关' }}</span></span>
             </button>
           </div>
         </div>
       </li>
     </ul>
   </div>
+</div>
 </template>
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { useRouter, useRoute } from 'vue-router';
+import { getFocusInfo,doFocus,unFollow } from '@/apis/main';
+import { ElLoading } from 'element-plus';
+import 'element-plus/theme-chalk/el-loading.css';
+
+const route = useRoute();
+const loading = ref(false);
+const loadingContainer = ref(null);
+let loadingInstance: any = null;
+
 
 interface Follower {
-  id: string;
-  name: string;
-  avatarUrl: string;
-  followedAt: string;
-  isMutual: boolean;
+  username: string;
+  avatar: string;
+  createTime: string;
+  back: boolean;
 }
 
 const followers = ref<Follower[]>([]);
 
 const fetchFollowers = async () => {
+  const user_id = route.params.id;
   try {
-    const response = await axios.get('/api/followers'); // 假设后端API路径是/api/followers
-    followers.value = response.data;
+    loading.value = true;
+    loadingInstance = ElLoading.service({
+      target: loadingContainer.value,
+      lock: true,
+      text: '加载中...',
+      background: 'rgba(0, 0, 0, 0.7)',
+    });
+    const post = await getFocusInfo({ user_id });
+    followers.value = post.info;
   } catch (error) {
-    console.error('Error fetching followers:', error);
+    console.error('Error fetching messages:', error);
+  } finally {
+    loading.value = false;
+    if (loadingInstance) {
+      loadingInstance.close();
+    }
   }
 };
 
 const toggleFollow = async (follower: Follower) => {
   try {
-    if (follower.isMutual) {
+    if (follower.back) {
       await axios.post(`/api/unfollow`, { userId: follower.id });
-      follower.isMutual = false;
+      follower.back = false;
     } else {
       await axios.post(`/api/focusOn`, { userId: follower.id });
-      follower.isMutual = true;
+      follower.back = true;
     }
   } catch (error) {
     console.error('Error toggling follow status:', error);

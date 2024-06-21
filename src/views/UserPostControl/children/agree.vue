@@ -28,14 +28,6 @@
         </li>
       </ul>
     </div>
-    <div class="overlay" v-if="show">
-        <button class="backPage" @click="close">
-          <el-icon>
-            <Back />
-          </el-icon>
-        </button>
-        <card-detail :detail="postData" :comments="empty" :review="true" />
-      </div>
   </div>
 </template>
 
@@ -54,10 +46,6 @@ const loading = ref(false);
 const loadingContainer = ref(null);
 let loadingInstance: any = null;
 
-const show = ref(false)
-const close = () => {
-  show.value = false
-}
 
 const fetchMessages = async () => {
   const user_id = route.params.id;
@@ -105,7 +93,31 @@ textarea {
   width: 100%;
   height: 100%;
 }
-
+.overlay {
+  position: fixed;
+  margin: auto;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  /* 设置透明度的背景色 */
+  z-index: 9999;
+  /* 设置一个较大的z-index值，确保图层位于其他内容之上 */
+}
+.backPage {
+  position: fixed;
+  top: 5%;
+  left: 3%;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 40px;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: all .3s;
+}
 .agree-container {
   width: 40rem;
 
