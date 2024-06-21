@@ -217,7 +217,7 @@ const emoji = [
       <div class="topArea">
         <div style="font-size: large;">图片编辑</div>
         <div class="img-container">
-          <el-upload v-model:file-list="fileList" action="http://localhost:8000/upload/" class="preview" ref="upload"
+          <el-upload v-model:file-list="fileList" action="http://123.60.149.233:8000/upload/" class="preview" ref="upload"
             list-type="picture-card" multiple :headers="userStore.headersObj" :limit="9"
             :on-preview="handlePictureCardPreview" :on-change="handleChange" :auto-upload="false"
             :on-exceed="handleExceed" :data="Post" :before-upload="beforeUpload" :on-error="onError">

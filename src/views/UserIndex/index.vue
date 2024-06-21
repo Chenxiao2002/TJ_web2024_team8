@@ -303,7 +303,7 @@ const all_like = ref(false)
       <el-col :span="7" style="width: 250px!important;">
         <div class="container">
           <h2>{{ userInfo.user.username }}</h2>
-          <button class="updBtn" @click="openDialog">
+          <button class="updBtn" @click="openDialog" v-if="checkFollow(userInfo.user.id)">
             <h5>编辑个人信息</h5>
           </button>
         </div>
@@ -323,7 +323,7 @@ const all_like = ref(false)
     <div class="fileUpload">
       <el-upload v-model:file-list="fileList"
                  ref="upload"
-                 action="http://localhost:8000/user/avatar/"
+                 action="http://123.60.149.233:8000/user/avatar/"
                  :limit="1"
                  :on-exceed="handleExceed"
                  :auto-upload="false"
