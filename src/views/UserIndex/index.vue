@@ -527,13 +527,13 @@ const all_like = ref(false)
 
 .updBtn {
   width: 100px;
-  background-color: #2f779d;
+  background-color: #8db4ca;
   color: white;
   border: none;
   padding: 12px 16px;
   font-size: 14px;
   cursor: pointer;
-  border-radius: 100px;
+  border-radius: 8px;
   transition: background-color 0.1s;
   display: flex;
   align-items: center;
@@ -542,7 +542,7 @@ const all_like = ref(false)
 }
 
 .updBtn:hover {
-  opacity: .6;
+  background-color: #2f779d;
 }
 
 .updBtn h5 {

@@ -31,7 +31,7 @@ http.interceptors.response.use(res => res.data, e => {
         userStore.userLogout()
         router.replace('/')
     }
-    if(e.response.status === 404){ 
+    if(e.response.status === 404){
         router.replace('/NotFound')
     }
     if(e.response.status === 403){

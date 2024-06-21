@@ -18,113 +18,18 @@ const toggleMenu = () => {
 const confirm = async () => {
   const res = await userStore.userLogout()
   ElMessage({type: 'success', message: res.info})
+  router.push({path:'/'}) //登出后跳到“发现”主页
 }
 // 显示登录界面
 const show = ref(false)
 const changeShow = () => {
   show.value = !show.value;
 }
-// 用户信息更新栏
-////////////////////////////////////////////////////////////////
-// 控制文件表单
-const dialogFormVisible = ref(false)
-// 文件上传对象
-const upload = ref(null)
-// 上传头像成功后修改pinia数据
-const avatar = ref('')
-const fileList = ref([])
-const handleExceed = (files) => {
-  upload.value.clearFiles()
-  const file = files[0]
-  file.uid = genFileId()
-  upload.value.handleStart(file)
-}
-const handleChange = (uploadFile, uploadFiles) => {
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // 可接受的图片类型
-  const maxSize = 2; // 最大文件大小，单位：MB
-
-  if (!allowedTypes.includes(uploadFile.raw.type)) {
-    ElMessage.error('请上传正确的图片文件!');
-    upload.value.handleRemove(uploadFile);
-    return false;
-  } else if (uploadFile.raw.size / 1024 / 1024 > maxSize) {
-    ElMessage.error(`文件大小最多${maxSize}MB!`);
-    upload.value.handleRemove(uploadFile);
-    return false;
-  }
-  return true;
-};
-const onSuccess = async (response) => {
-  avatar.value = response.info.filepath
-}
-const onError = async (error) => {
-  ElMessage({
-    type: 'warning',
-    message: '头像上传失败'
-  })
-  const userStore = useUserStore();
-  await userStore.userLogout()
-  await router.replace('/')
-}
-// 控制表单信息
-const form = ref({
-  username: '',
-  signature: ''
-})
-const openDialog = () => {
-  dialogFormVisible.value = true
-  form.value.username = userStore.userInfo.username
-  form.value.signature = userStore.userInfo.signature
-}
-// 表单验证规则
-const rules = {
-  username: [
-    {required: true, message: '用户名不能为空！', trigger: 'blur'}
-  ],
-  signature: [
-    {required: true, message: '个性签名不能为空!', trigger: 'blur'}
-  ]
-}
-// 表单对象
-const formRef = ref(null)
-const doUpdate = async () => {
-  const {username, signature} = form.value;
-  const isModified = username !== userStore.userInfo.username || signature !== userStore.userInfo.signature;
-  const isAvatarUploaded = fileList.value.length === 1;
-
-  if (!isModified && !isAvatarUploaded) {
-    ElMessage({type: 'warning', message: '未作任何修改！'});
-    return;
-  }
-
-  if (isModified && !isAvatarUploaded) {
-    await updateUserInfo({username, signature});
-    avatar.value = userStore.userInfo.avatar;
-    userStore.changeInfo({username, signature, avatar});
-    ElMessage({type: 'success', message: '用户信息更新成功'});
-    dialogFormVisible.value = false;
-    return;
-  }
-
-  if (!isModified && isAvatarUploaded) {
-    await upload.value.submit();
-    userStore.changeInfo({username, signature, avatar});
-    ElMessage({type: 'success', message: '头像上传成功'});
-    dialogFormVisible.value = false;
-    return;
-  }
-
-  if (isModified && isAvatarUploaded) {
-    const res = await updateUserInfo({username, signature});
-    await upload.value.submit();
-    userStore.changeInfo({username, signature, avatar});
-    ElMessage({type: 'success', message: res.info});
-    dialogFormVisible.value = false;
-  }
-};
 </script>
 
 <template>
+<div>
+  <!-- tooltip为文字提示 -->
   <nav class="menu" :class="{ open: isMenuOpen }">
     <el-tooltip effect="dark" content="切换菜单样式" placement="right">
       <div class="actionsBar">
@@ -182,11 +87,12 @@ const doUpdate = async () => {
       </div>
       <div class="themeBar">
         <el-tooltip effect="dark" content="退出登录" placement="right">
-          <div>
+          <div> 
+            <!-- 气泡确认框，确认是否要退出登录 -->
             <el-popconfirm @confirm="confirm" title="确认退出吗?" confirm-button-text="确认"
                            cancel-button-text="取消">
               <template #reference>
-                <button type="button" @click=""><i class="iconfont icon-tuichu"></i></button>
+                <button type="button" ><i class="iconfont icon-tuichu"></i></button>
               </template>
             </el-popconfirm>
           </div>
@@ -207,45 +113,43 @@ const doUpdate = async () => {
       </el-tooltip>
     </div>
   </nav>
+  <!-- 登录组件的显示 -->
   <div class="overlay" v-if="show">
     <el-button class="close" @click="changeShow" plain round>
       <el-icon size="x-large">
         <Close/>
       </el-icon>
     </el-button>
-    <login @changeShow="changeShow"/>
+    <login @changeShow="changeShow" class="login"/>
   </div>
-
+</div>
   
+
 </template>
 
 <style scoped>
-.fileUpload {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
-
-.fileUpload button {
-  margin-left: 20px;
-  margin-bottom: 20px;
-}
 
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  /* width: 100%;
+  height: 100%; */
+  width: 100vw; /* 使用 viewport 宽度 */
+  height: 100vh; /* 使用 viewport 高度 */
   background-color: rgba(0, 0, 0, 0.5); /* 设置透明度的背景色 */
   z-index: 9999; /* 设置一个较大的z-index值，确保图层位于其他内容之上 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-
+.login{
+  position: absolute;
+}
 .close {
   border: 0;
   position: absolute;
-  left: 70%;
+  left: 76%;
   top: 18%;
   background-color: #fff;
   z-index: 1000; /* 设置一个较大的z-index值，确保图层位于其他内容之上 */
@@ -264,7 +168,7 @@ const doUpdate = async () => {
 .menu {
   position: absolute;
   width: 60px;
-  height: auto;
+  height: 80%;
   background-color: #f3f5f6;
   z-index: 2;
   top: 65px;

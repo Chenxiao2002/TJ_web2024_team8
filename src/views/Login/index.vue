@@ -115,12 +115,12 @@ const userStore = useUserStore();
 const doLogin = () => {
   const { email, password } = formLogin.value
   formLoginRef.value.validate(async (valid) => {
-    if (valid) {//当校验通过时
+    if (valid) {
       // 提示用户
-      await userStore.getUserInfo({ email, password })//await是等待异步操作完成
-      emit('changeShow')//触发父组件的changeShow事件
-      await router.replace(`/user/post/${userStore.userInfo.id}`)//跳转到用户主页，replace是替换当前路由
-      ElMessage({ type: 'success', message: '登陆成功' })//提示用户
+      await userStore.getUserInfo({ email, password })
+      emit('changeShow')
+      await router.replace(`/user/index/${userStore.userInfo.id}`)
+      ElMessage({ type: 'success', message: '登陆成功' })
     }
   })
 }
@@ -238,6 +238,7 @@ h2{
   position: absolute;
   left: 350px;
   top: 100px;
+  display: flex;
 }
 
 .box {

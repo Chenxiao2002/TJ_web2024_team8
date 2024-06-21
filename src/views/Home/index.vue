@@ -8,7 +8,7 @@
       <head-nav/>
     </el-header>
     <el-container>
-      <el-aside width="80px">
+      <el-aside width="80px" class="aside">
         <aside-nav/>
       </el-aside>
       <el-main class="maxSize" id="content">
@@ -22,7 +22,11 @@
 .maxSize {
   height: 700px;
   padding: 15px;
+  margin-top: 10px;
   box-sizing: border-box;
   overflow-y: scroll;
+}
+.aside{
+  
 }
 </style>

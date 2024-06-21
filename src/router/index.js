@@ -52,8 +52,37 @@ const router = createRouter({
                     path: 'user/control',
                     component: UserPostControl,
                     meta: {
-                        title: '信息管理 .TJ论坛',
+                        title: '消息通知 .TJ论坛',
                     },
+                    children: [
+                        {
+                          path: "/message",
+                          component: () => import("@/views/UserPostControl/children/message.vue"),
+                          name: "message", // 用于 keep-alive, 必须与SFC自动推导或者显示声明的组件name一致
+                        },
+                        {
+                          path: "/agree",
+                          component: () => import("@/views/UserPostControl/children/agree.vue"),
+                          name: "agree", // 用于 keep-alive, 必须与SFC自动推导或者显示声明的组件name一致
+                        },
+                        {
+                            path: "/collection",
+                            component: () => import("@/views/UserPostControl/children/collection.vue"),
+                            name: "collection", // 用于 keep-alive, 必须与SFC自动推导或者显示声明的组件name一致
+                          },
+                        {
+                          path: "/follower",
+                          component: () => import("@/views/UserPostControl/children/follower.vue"),
+                          name: "follower", // 用于 keep-alive, 必须与SFC自动推导或者显示声明的组件name一致
+                        },
+                        {
+                          path: "/comment",
+                          component: () => import("@/views/UserPostControl/children/comment.vue"),
+                          name: "comment", // 用于 keep-alive, 必须与SFC自动推导或者显示声明的组件name一致
+                        },
+                      ],
+              
+                    
                 },
             ],
         },
