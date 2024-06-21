@@ -211,7 +211,7 @@ const emoji = [
 </script>
 
 <template>
-  <div>
+  <div style="height: 1200px;">
     <div class="box">
       <h1 style="text-align: left;margin-left:20px;font-size:20px">发布图文</h1>
       <div class="topArea">
