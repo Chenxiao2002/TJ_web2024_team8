@@ -150,6 +150,47 @@ export const getComment = ({id, offset}) => {
         }
     })
 }
+//获取被评论消息
+export const getCommentInfo = ({id}) => {
+    return http({
+        url: '/getCommentInfo/',
+        method: 'POST',
+        data: {
+            id,
+        }
+    })
+}
+//获取被点赞消息
+export const getLikeInfo = ({id}) => {
+    return http({
+        url: '/getLikeInfo/',
+        method: 'POST',
+        data: {
+            id,
+        }
+    })
+}
+//获取被收藏消息
+export const getCollectInfo = ({id}) => {
+    return http({
+        url: '/getCollectInfo/',
+        method: 'POST',
+        data: {
+            id,
+        }
+    })
+}
+//获取被关注消息
+export const getFocusInfo = ({id}) => {
+    return http({
+        url: '/getFocusInfo/',
+        method: 'POST',
+        data: {
+            id,
+        }
+    })
+}
+
 
 export const queryUserPostControl = ({offset, types}) => {
     return http({

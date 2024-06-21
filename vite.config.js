@@ -27,5 +27,14 @@ export default defineConfig({
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
         }
-    }
+    },
+    server:{
+        proxy:{
+            '/api':{
+                target:'http://123.60.149.233:8000',//后端接口地址
+                changeOrigin:true,
+                rewrite:path=>path.replace(/^\/api/,''),
+            },
+        },
+    },
 })
