@@ -303,7 +303,7 @@ const all_like = ref(false)
       <el-col :span="7" style="width: 250px!important;">
         <div class="container">
           <h2>{{ userInfo.user.username }}</h2>
-          <button class="updBtn" @click="openDialog">
+          <button class="updBtn" @click="openDialog" v-if="checkFollow(userInfo.user.id)">
             <h5>编辑个人信息</h5>
           </button>
         </div>

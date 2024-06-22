@@ -1,8 +1,9 @@
 <template>
-      <div v-if="messages.length === 0">
-      <el-empty description="现在还没有评论消息..." />
+  <div ref="loadingContainer" class="collection-container">
+    <div v-if="messages.length === 0 && !loading">
+      <el-empty description="现在还没有点赞消息..." />
     </div>
-  <div>
+    <div v-else>
     <ul class="message-container">
       <li
         class="message-item"
@@ -36,6 +37,7 @@
       </li>
     </ul>
   </div>
+</div>
 </template>
 
 <script lang="ts" setup>
@@ -43,24 +45,41 @@ import { ref, onMounted } from 'vue';
 import { useRouter,useRoute } from 'vue-router';
 import { ChatRound } from '@element-plus/icons-vue';
 import {getCommentInfo} from '@/apis/main';
+import { ElLoading } from 'element-plus';
+import 'element-plus/theme-chalk/el-loading.css';
 
 const route = useRoute();
 const router = useRouter();
 const messages = ref([]);
+const loading = ref(false);
+const loadingContainer = ref(null);
+let loadingInstance: any = null;
 
 const fetchMessages = async () => {
   const user_id = route.params.id;
   try {
-    const post = await getCommentInfo({user_id})
-    messages.value = post.info
-    console.log(messages)
+    loading.value = true;
+    loadingInstance = ElLoading.service({
+      target: loadingContainer.value,
+      lock: true,
+      text: '加载中...',
+      background: 'rgba(0, 0, 0, 0.7)',
+    });
+    const post = await getCommentInfo({ user_id });
+    messages.value = post.info;
   } catch (error) {
-    console.error('Error fetching comments:', error);
+    console.error('Error fetching messages:', error);
+  } finally {
+    loading.value = false;
+    if (loadingInstance) {
+      loadingInstance.close();
+    }
   }
 };
 
 const goToDetail = (postId: string) => {
   router.push(`/explore/${postId}`);
+  //show.value = true;
 };
 
 const formatDate = (dateString: string) => {
