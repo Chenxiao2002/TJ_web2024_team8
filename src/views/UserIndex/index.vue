@@ -1,7 +1,7 @@
 <script setup>
 import { useRoute } from "vue-router";
 import { onMounted, ref } from "vue";
-import HomeCard from "@/components/homeCard.vue";
+import HomeCardAdv from "@/components/homeCardAdv.vue"
 import CardDetail from "@/components/cardDetail.vue";
 import { Back } from "@element-plus/icons-vue";
 import { doFocus, queryUserIndex, queryUserPost, controlUserCollectOrLike, postDelete } from "@/apis/main";
@@ -294,9 +294,9 @@ const doUpdate = async () => {
 const allSent = ref(false)
 const allStar = ref(false)
 const allLike = ref(false)
-const selSent = ref([])
-const selStar = ref([])
-const selLike = ref([])
+const selSent = ref(null)
+const selStar = ref(null)
+const selLike = ref(null)
 
 const doAllSent = () => {
   if (allSent.value) {
@@ -309,30 +309,33 @@ const doAllSent = () => {
   console.log("selSent: ", selSent.value.length)
 }
 const delSent = async () => {
-  if (selSent.value.length === 0) {
+  console.log("sent: ", selSent.value.selectedCardIds)
+  if (selSent.value.selectedCardIds.length === 0) {
     ElMessage({ type: 'warning', message: '您尚未选中发送的帖子' })
     return
   }
 
   const user_id = userInfo.value.user.id;
 
-  for (const i in selSent.value) {
-    const post_id = selSent.value[i].id
+  for (const i in selSent.value.selectedCardIds) {
+    const post_id = selSent.value.selectedCardIds[i]
     const res = await postDelete({
       id: post_id,
       user_id: user_id
     })
 
-    ElMessage({ type: 'success', message: res.info })
+    ElMessage({ type: 'success', message: '成功删除帖子' })
   }
 
-  allSent.value = false
-  selSent.value = []
+  userPost.value = userPost.value.filter(item => !selSent.value.selectedCardIds.includes(item.id))
 
-  userPost.value = []
+  allSent.value = false
+  selSent.value.selectedCardIds = []
+
   waterFallInit(columns, card_columns_posts, arrHeight, userPost)
   resizeWaterFall(columns, card_columns_posts, arrHeight, userPost)
 }
+
 const doAllStar = () => {
   if (allStar.value) {
     selStar.value = userCollect.value
@@ -344,13 +347,14 @@ const doAllStar = () => {
   console.log("selStar: ", selStar.value.length)
 }
 const delStar = async () => {
-  if (selStar.value.length === 0) {
+  console.log("star: ", selStar.value.selectedCardIds)
+  if (selStar.value.selectedCardIds.length === 0) {
     ElMessage({ type: 'warning', message: '您尚未选中收藏的帖子' })
     return
   }
 
-  for (const i in selStar.value) {
-    const post_id = selStar.value[i].id
+  for (const i in selStar.value.selectedCardIds) {
+    const post_id = selStar.value.selectedCardIds[i]
     const res = await controlUserCollectOrLike({
       post_id: post_id,
       operator: true,
@@ -361,31 +365,34 @@ const delStar = async () => {
     ElMessage({ type: 'success', message: res.info })
   }
 
-  allStar.value = false
-  selStar.value = []
+  userCollect.value = userCollect.value.filter(item => !selStar.value.selectedCardIds.includes(item.id))
 
-  userCollect.value = []
+  allStar.value = false
+  selStar.value.selectedCardIds = []
+
   waterFallInit(columns, card_columns_collect, arrHeight, userCollect)
   resizeWaterFall(columns, card_columns_collect, arrHeight, userCollect)
 }
+
 const doAllLike = () => {
   if (allLike.value) {
-    selLike.value = userFavorite.value
+    selLike.value.selectedCardIds = userFavorite.value.map(item => item.id)
   }
   else {
-    selLike.value = []
+    selLike.value.selectedCardIds = []
   }
   console.log("allLike: ", allLike.value)
-  console.log("selLike: ", selLike.value.length)
+  console.log("selLike: ", selLike.value.selectedCardIds.length)
 }
 const delLike = async () => {
-  if (selLike.value.length === 0) {
+  console.log("like: ", selLike.value.selectedCardIds)
+  if (selLike.value.selectedCardIds.length === 0) {
     ElMessage({ type: 'warning', message: '您尚未选中点赞的帖子' })
     return
   }
 
-  for (const i in selLike.value) {
-    const post_id = selLike.value[i].id
+  for (const i in selLike.value.selectedCardIds) {
+    const post_id = selLike.value.selectedCardIds[i]
     const res = await controlUserCollectOrLike({
       post_id: post_id,
       operator: true,
@@ -396,14 +403,14 @@ const delLike = async () => {
     ElMessage({ type: 'success', message: res.info })
   }
 
-  allLike.value = false
-  selLike.value = []
+  userFavorite.value = userFavorite.value.filter(item => !selLike.value.selectedCardIds.includes(item.id))
 
-  userFavorite.value = []
+  allLike.value = false
+  selLike.value.selectedCardIds = []
+
   waterFallInit(columns, card_columns_like, arrHeight, userFavorite)
   resizeWaterFall(columns, card_columns_like, arrHeight, userFavorite)
 }
-
 </script>
 
 <template>
@@ -488,7 +495,7 @@ const delLike = async () => {
       </div>
       <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-delay="200"
         :infinite-scroll-distance="100" v-else>
-        <home-card :card_columns="card_columns_posts" @show-detail="showMessage"></home-card>
+        <HomeCardAdv ref="selSent" :card_columns="card_columns_posts" @show-detail="showMessage"></HomeCardAdv>
       </div>
       <transition name="fade" @before-enter="onBeforeEnter" @after-enter="onAfterEnter" @before-leave="onBeforeLeave"
         @after-leave="onAfterLeave">
@@ -515,7 +522,7 @@ const delLike = async () => {
       </div>
       <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-delay="200"
         :infinite-scroll-distance="100" v-else>
-        <home-card :card_columns="card_columns_collect" ref="overlay" @show-detail="showMessage"></home-card>
+        <HomeCardAdv ref="selStar" :card_columns="card_columns_collect" @show-detail="showMessage"></HomeCardAdv>
       </div>
       <transition name="fade" @before-enter="onBeforeEnter" @after-enter="onAfterEnter" @before-leave="onBeforeLeave"
         @after-leave="onAfterLeave">
@@ -542,7 +549,7 @@ const delLike = async () => {
       </div>
       <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-delay="200"
         :infinite-scroll-distance="100" v-else>
-        <home-card :card_columns="card_columns_like" @show-detail="showMessage"></home-card>
+        <HomeCardAdv ref="selLike" :card_columns="card_columns_like" @show-detail="showMessage"></HomeCardAdv>
       </div>
       <transition name="fade" @before-enter="onBeforeEnter" @after-enter="onAfterEnter" @before-leave="onBeforeLeave"
         @after-leave="onAfterLeave">
