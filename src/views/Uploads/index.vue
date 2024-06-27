@@ -85,11 +85,11 @@ const doUploads = async () => {
   }
   const data = {
     title: title.value,
-    content: content.value,
+    content: content.value + valueEmoji.value,
     user_id: userStore.userInfo.id,
     category: valueTopic.value,
     user: valueUser.value,
-    emoji: valueEmoji.value,
+    // emoji: valueEmoji.value,
   }
 
   const res = await uploadPost(data)
@@ -212,12 +212,12 @@ const emoji = [
     label: "😎  墨镜笑脸"
   },
 ]
-
+const afterDoComment = (comment) => Details.afterDoComment(comment);
 </script>
 
 <template>
   <div style="height: 1200px;">
-    <div class="box">
+    <div class="boxw">
       <h1 style="text-align: left;margin-left:20px;font-size:20px">发布图文</h1>
       <div class="topArea">
         <div style="font-size: large;">图片编辑</div>
@@ -271,7 +271,8 @@ const emoji = [
             <Back />
           </el-icon>
         </button>
-        <card-detail :detail="postData" :comments="empty" :review="true" class="card" />
+        <!-- <card-detail :detail="postData" :comments="empty" :review="true" class="card" /> -->
+        <card-detail :detail="postData" :comment="null" :review="true" />
       </div>
     </div>
   </div>
@@ -283,7 +284,7 @@ const emoji = [
 }
 
 /* 背景框图 */
-.box {
+.boxw {
   height: 600px;
   width: 600px;
   /* position: absolute; */
@@ -294,6 +295,10 @@ const emoji = [
   border-radius: 20px;
   border: #2c3e50 1px solid;
   overflow: auto;
+}
+
+.card .el-row {
+  padding-left: 100px;
 }
 
 .topArea {
