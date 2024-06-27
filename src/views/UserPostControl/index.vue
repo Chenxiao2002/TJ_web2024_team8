@@ -20,7 +20,7 @@
           </div>
           <div :class="['reds-tab-item', 'tab-item', { active: activeTab === 'follower' }]" @click="toFollower">
             <div class="badge-container">
-              <span>新增关注</span>
+              <span>新增粉丝</span>
             </div>
           </div>
         </div>

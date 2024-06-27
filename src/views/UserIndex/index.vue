@@ -556,7 +556,7 @@ const delFocusOnAdv = async (id) => {
         <p style="margin-left: 5%; margin-right: 5%;">用户昵称: {{ focus.username }}</p>
         <p style="margin-left: 5%; margin-right: 5%;">关注时间: {{ focus.createTime }}</p>
         <p style="margin-left: 5%; margin-right: 5%;">{{ focus.back ? "已互粉" : " " }}</p>
-        <button class="delBtn" v-if="!focus.back"  @click="delFocusOnAdv(focus.id)">取关</button>
+        <button class="delBtn" @click="delFocusOnAdv(focus.id)" style="background-color: lightcoral;">取关</button>
       </div>
     </div>
     <template #footer>
@@ -573,8 +573,8 @@ const delFocusOnAdv = async (id) => {
         </RouterLink>
         <p style="margin-left: 5%; margin-right: 5%;">用户昵称: {{ follow.username }}</p>
         <p style="margin-left: 5%; margin-right: 5%;">关注时间: {{ follow.createTime }}</p>
-        <p style="margin-left: 5%; margin-right: 5%;">{{ follow.back ? "已互粉" : " " }}</p>
-        <button class="delBtn" :disabled="!follow.back" @click="doFocusOnAdv(follow.id)">关注</button>
+        <p style="margin-left: 12%; margin-right: 5%;" v-if="follow.back">已互粉</p>
+        <button class="delBtn" :disabled="!follow.back" style="margin-left: 10%;" @click="doFocusOnAdv(follow.id)" v-else>关注</button>
       </div>
     </div>
     <template #footer>
@@ -633,7 +633,7 @@ const delFocusOnAdv = async (id) => {
           <input type="checkbox" v-model="allSent" @change="doAllSent" />
           全选帖子
         </label>
-        <button class="delBtn" @click="delSent">删除所选帖子</button>
+        <button class="delBtn" @click="delSent" style="background-color: lightcoral;">删除所选帖子</button>
       </div>
       <div v-if="userPost.length === 0">
         <el-empty description="现在还没有帖子..." />
@@ -729,7 +729,7 @@ const delFocusOnAdv = async (id) => {
   font-size: 16px;
   cursor: pointer;
   background-color: #2f779d;
-  border-radius: 1000px;
+  border-radius: 0.8rem;
   color: #fff;
   border-color: transparent;
   margin-top: 1rem;
@@ -749,7 +749,7 @@ const delFocusOnAdv = async (id) => {
   font-size: 16px;
   cursor: pointer;
   background-color: lightcoral;
-  border-radius: 1000px;
+  border-radius: 0.8rem;
   color: #fff;
   border-color: transparent;
   margin-top: 1rem;
@@ -786,13 +786,13 @@ const delFocusOnAdv = async (id) => {
 
 .updBtn {
   width: 100px;
-  background-color: #8db4ca;
+  background-color: #2f779d;
   color: white;
   border: none;
   padding: 12px 16px;
   font-size: 14px;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 0.8rem;
   transition: background-color 0.1s;
   display: flex;
   align-items: center;
@@ -801,7 +801,7 @@ const delFocusOnAdv = async (id) => {
 }
 
 .updBtn:hover {
-  background-color: #2f779d;
+  background-color: #ffffffbb;
 }
 
 .updBtn h5 {
@@ -841,7 +841,7 @@ input[type="checkbox"] {
   flex-direction: column;
   padding: 20px;
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 0.8rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -880,13 +880,13 @@ input[type="checkbox"] {
 
 .delBtn {
   width: 90px;
-  background-color: white;
-  border: 1px solid lightcoral;
-  color: black;
+  border: 0px;
+  background-color: #2f779d;
+  color: white;
   padding: 8px 12px;
   font-size: 12px;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 0.8rem;
   transition: background-color 0.1s;
   display: flex;
   align-items: center;
@@ -895,7 +895,7 @@ input[type="checkbox"] {
 }
 
 .delBtn:hover {
-  background-color: lightcoral;
+  background-color: #2f779db6;
 }
 
 .overlay {
