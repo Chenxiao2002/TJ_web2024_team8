@@ -1,11 +1,10 @@
 <script setup>
-import { computed, onBeforeMount, onMounted, ref } from 'vue';
-import { queryUserPostControl, getAllId } from "@/apis/main";
-import { ElMessage } from 'element-plus';
+import { onBeforeMount, onMounted, ref } from 'vue';
+import { getAllId,setAdmin,block,unblock } from "@/apis/main";
+import { ElMessage } from 'element-plus'
 import { useUserStore } from "@/stores/user";
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
 import { useTableStore } from "@/stores/tableStore";
-import { InfoFilled } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -46,23 +45,40 @@ const handleSelectionChange = (val) => {
     multipleSelection.value = val;
 };
 
-const handleDelete = async (index, row) => {
+const handleDelete = async (row) => {
     const id = row.id;
     try {
-        userData.value.splice(index, 1);
-        ElMessage.success('拉黑成功');
+        const res = await block({ id })
+        ElMessage({ type: 'success', message: res.info })
+        await getData();  // 刷新表格数据
     } catch (error) {
-        ElMessage.error('拉黑失败');
+        ElMessage({ type: 'error', message: error });
+        console.log(error);
     }
 };
 
-const setAdmin = async (index, row) => {
+const set_Admin = async (row) => {
     const id = row.id;
     try {
-        userData.value.splice(index, 1);
-        ElMessage.success('拉黑成功');
+        const res = await setAdmin({ id })
+        ElMessage({ type: 'success', message: res.info });
+        console.log(res);
+        await getData();  // 刷新表格数据
     } catch (error) {
-        ElMessage.error('拉黑失败');
+        ElMessage.error({ type: 'error', message: error });
+        console.log(error);
+    }
+};
+
+const unblockUser = async (row) => {
+    const id = row.id;
+    try {
+        const res = await unblock({ id })
+        ElMessage({ type: 'success', message: res.info });
+        console.log(res);
+        await getData();  // 刷新表格数据
+    } catch (error) {
+        ElMessage.error({ type: 'error', message: error });
     }
 };
 
@@ -103,17 +119,33 @@ onMounted(() => {
     <el-config-provider :locale="locale">
         <div style="display:flex;align-items: center;flex-direction: column">
             <el-table :data="userData" style="width: 100%" ref="tableRef" @selection-change="handleSelectionChange"
-                @row-click="handleRowClick" border v-loading="loading" stripe>
+                border v-loading="loading" stripe>
                 <el-table-column label="ID" prop="id" />
                 <el-table-column label="用户名" sortable prop="username" :show-overflow-tooltip='true' />
-                <el-table-column label="状态" prop="status" />
+                <el-table-column label="状态">
+                    <template #default="scope">
+                        <span v-if="scope.row.status === 0">管理员</span>
+                        <span v-if="scope.row.status === 1">普通用户</span>
+                        <span v-if="scope.row.status === 2">黑名单</span>
+                    </template>
+                </el-table-column>
                 <el-table-column align="center" label="操作">
                     <template #default="scope">
-                        <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">
+                        <el-button v-if="scope.row.status === 1" size="small" type="success" @click="set_Admin(scope.row)">
+                            设为管理员
+                        </el-button>
+                        <el-button v-if="scope.row.status === 0 || scope.row.status === 1" size="small" type="danger" @click="handleDelete(scope.row)">
                             拉黑
                         </el-button>
-                        <el-button size="small" type="primary" @click="setAdmin(scope.$index, scope.row)">
-                            设为管理员
+                        <el-button v-if="scope.row.status === 2" size="small" type="warning" @click="unblockUser(scope.row)">
+                            解除黑名单
+                        </el-button>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" label="详情">
+                    <template #default="scope">
+                        <el-button plain size="small" type="primary" @click="handleRowClick(scope.row)">
+                            查看详情
                         </el-button>
                     </template>
                 </el-table-column>
