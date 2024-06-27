@@ -9,7 +9,6 @@ import { ElMessage } from "element-plus";
 import CardDetail from "@/components/cardDetail.vue";
 import { getCurrentTime } from "@/utils/getTime";
 import { uploadPost } from "@/apis/main";
-import { categories } from "@vueuse/core/metadata.cjs";
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -88,7 +87,7 @@ const doUploads = async () => {
     title: title.value,
     content: content.value,
     user_id: userStore.userInfo.id,
-    category: valueTopic.value,
+    topic: valueTopic.value,
     user: valueUser.value,
     emoji: valueEmoji.value,
   }
@@ -217,14 +216,14 @@ const emoji = [
 </script>
 
 <template>
-  <div>
+  <div style="height: 1200px;">
     <div class="box">
       <h1 style="text-align: left;margin-left:20px;font-size:20px">发布图文</h1>
       <div class="topArea">
         <div style="font-size: large;">图片编辑</div>
         <div class="img-container">
-          <el-upload v-model:file-list="fileList" action="http://localhost:8000/upload/" class="preview" ref="upload"
-            list-type="picture-card" multiple :headers="userStore.headersObj" :limit="9"
+          <el-upload v-model:file-list="fileList" action="http://123.60.149.233:8000/upload/" class="preview"
+            ref="upload" list-type="picture-card" multiple :headers="userStore.headersObj" :limit="9"
             :on-preview="handlePictureCardPreview" :on-change="handleChange" :auto-upload="false"
             :on-exceed="handleExceed" :data="Post" :before-upload="beforeUpload" :on-error="onError">
             <el-icon>
@@ -279,15 +278,22 @@ const emoji = [
 </template>
 
 <style scoped>
+.body {
+  height: 900px;
+}
+
 /* 背景框图 */
 .box {
   height: 600px;
   width: 600px;
+  /* position: absolute; */
+  overflow-y: scroll;
   margin: auto;
   /* display: flex; */
   /* flex-direction: column; */
   border-radius: 20px;
   border: #2c3e50 1px solid;
+  overflow: auto;
 }
 
 .topArea {
@@ -295,8 +301,7 @@ const emoji = [
   margin: auto;
   width: 550px;
   height: 150px;
-  font-family:
-    /* background-color: rebeccapurple; */
+  /* background-color: rebeccapurple; */
 }
 
 .img-container {
