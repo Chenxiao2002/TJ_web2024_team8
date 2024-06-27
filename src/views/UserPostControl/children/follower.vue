@@ -1,54 +1,56 @@
 <template>
   <div ref="loadingContainer" class="collection-container">
     <div v-if="followers.length === 0 && !loading">
-      <el-empty description="现在还没有点赞消息..." />
+      <el-empty description="现在还没有新增关注消息..." />
     </div>
     <div v-else>
-    <ul class="agree-container">
-      <li class="agree-item" v-for="follower in followers" :key="follower.createTime">
-        <a class="user-avatar">
-          <img class="avatar-item" :src="follower.avatar" />
-        </a>
-        <div class="main">
-          <div class="info">
-            <div class="user-info">
-              <a>{{ follower.username }}</a>
+      <ul class="agree-container">
+        <li class="agree-item" v-for="follower in followers" :key="follower.createTime">
+          <a class="user-avatar" :href="`/user/index/${follower.id}`">
+            <img class="avatar-item" :src="follower.avatar" />
+          </a>
+          <div class="main">
+            <div class="info">
+              <div class="user-info">
+                <a>{{ follower.username }}</a>
+              </div>
+              <div class="interaction-hint"><span>开始关注您了&nbsp;</span><span>{{ formatDate(follower.createTime) }}</span>
+              </div>
             </div>
-            <div class="interaction-hint"><span>开始关注您了&nbsp;</span><span>{{ formatDate(follower.createTime) }}</span></div>
+            <div class="extra">
+              <button class="reds-button-new follow-button large"
+                :class="{ 'primary': !follower.back, 'mutual': follower.back }" @click="toggleFollow(follower)">
+                <span class="reds-button-new-box"><span class="reds-button-new-text">{{ follower.back ? '互相关注' : '回关'
+                    }}</span></span>
+              </button>
+            </div>
           </div>
-          <div class="extra">
-            <button
-              class="reds-button-new follow-button large"
-              :class="{'primary': !follower.back, 'mutual': follower.back}"
-              @click="toggleFollow(follower)"
-            >
-              <span class="reds-button-new-box"><span class="reds-button-new-text">{{ follower.back ? '互相关注' : '回关' }}</span></span>
-            </button>
-          </div>
-        </div>
-      </li>
-    </ul>
+        </li>
+      </ul>
+    </div>
   </div>
-</div>
 </template>
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { getFocusInfo,doFocus,unFollow } from '@/apis/main';
+import { getFocusInfo, doFocus, unFollow } from '@/apis/main';
 import { ElLoading } from 'element-plus';
+import { useUserStore } from "@/stores/user";
 import 'element-plus/theme-chalk/el-loading.css';
+import { ElMessage } from "element-plus";
 
 const route = useRoute();
 const loading = ref(false);
 const loadingContainer = ref(null);
 let loadingInstance: any = null;
-
+const userStore = useUserStore()
 
 interface Follower {
   username: string;
   avatar: string;
   createTime: string;
   back: boolean;
+  id: '';
 }
 
 const followers = ref<Follower[]>([]);
@@ -65,6 +67,7 @@ const fetchFollowers = async () => {
     });
     const post = await getFocusInfo({ user_id });
     followers.value = post.info;
+    console.log(followers);
   } catch (error) {
     console.error('Error fetching messages:', error);
   } finally {
@@ -76,12 +79,18 @@ const fetchFollowers = async () => {
 };
 
 const toggleFollow = async (follower: Follower) => {
+  console.log(follower);
+  const id=follower.id;
   try {
     if (follower.back) {
-      await axios.post(`/api/unfollow`, { userId: follower.id });
+      const res = await unFollow({id});
+      userStore.removeFocus(1, id);
+      ElMessage({ type: 'success', message: res.info });
       follower.back = false;
     } else {
-      await axios.post(`/api/focusOn`, { userId: follower.id });
+      const res = await doFocus({id});
+      userStore.extendUserInfo(1, id);
+      ElMessage({ type: 'success', message: res.info });
       follower.back = true;
     }
   } catch (error) {
@@ -102,8 +111,10 @@ onMounted(() => {
 textarea {
   overflow: auto;
 }
+
 .agree-container {
   width: 40rem;
+
   .agree-item {
     display: flex;
     flex-direction: row;
@@ -144,12 +155,14 @@ textarea {
           align-items: center;
           justify-content: space-between;
           margin-bottom: 4px;
+
           a {
             color: #333;
             font-size: 16px;
             font-weight: 600;
           }
         }
+
         .interaction-hint {
           font-size: 14px;
           color: rgba(51, 51, 51, 0.6);
@@ -161,17 +174,21 @@ textarea {
         min-width: 48px;
         flex-shrink: 0;
         margin-left: 24px;
+
         .follow-button {
           width: 96px;
+
           &.primary {
             background-color: #2f779d;
             color: #fff;
           }
+
           &.mutual {
             background-color: #ccc;
             color: #333;
           }
         }
+
         .reds-button-new.large {
           font-size: 16px;
           font-weight: 600;
@@ -179,6 +196,7 @@ textarea {
           padding: 0 24px;
           height: 40px;
         }
+
         .reds-button-new {
           position: relative;
           cursor: pointer;

@@ -87,7 +87,7 @@ const doUploads = async () => {
     title: title.value,
     content: content.value,
     user_id: userStore.userInfo.id,
-    topic: valueTopic.value,
+    category: valueTopic.value,
     user: valueUser.value,
     emoji: valueEmoji.value,
   }
@@ -101,6 +101,8 @@ const doUploads = async () => {
   }, 3000)
 
 }
+
+
 //处理图片数量
 const handleExceed = () => {
   ElMessage.warning(
@@ -142,23 +144,23 @@ const valueUser = ref('')
 const valueEmoji = ref('')
 const topics = [
   {
-    value: "study",
+    value: "学习",
     label: "学习"
   },
   {
-    value: "selectCourse",
+    value: "选课",
     label: "选课"
   },
   {
-    value: "carpool",
+    value: "拼车",
     label: "拼车"
   },
   {
-    value: "internship",
+    value: "实习",
     label: "实习"
   },
   {
-    value: "makeFriends",
+    value: "交友",
     label: "交友"
   },
 ]
@@ -167,11 +169,11 @@ const topics = [
 
 const user = [
   {
-    value: "user1",
+    value: "用户1",
     label: "用户1"
   },
   {
-    value: "user2",
+    value: "用户2",
     label: "用户2"
   }
 ]
@@ -220,8 +222,8 @@ const emoji = [
       <div class="topArea">
         <div style="font-size: large;">图片编辑</div>
         <div class="img-container">
-          <el-upload v-model:file-list="fileList" action="http://123.60.149.233:8000/upload/" class="preview" ref="upload"
-            list-type="picture-card" multiple :headers="userStore.headersObj" :limit="9"
+          <el-upload v-model:file-list="fileList" action="http://123.60.149.233:8000/upload/" class="preview"
+            ref="upload" list-type="picture-card" multiple :headers="userStore.headersObj" :limit="9"
             :on-preview="handlePictureCardPreview" :on-change="handleChange" :auto-upload="false"
             :on-exceed="handleExceed" :data="Post" :before-upload="beforeUpload" :on-error="onError">
             <el-icon>
@@ -269,22 +271,29 @@ const emoji = [
             <Back />
           </el-icon>
         </button>
-        <card-detail :detail="postData" :comments="empty" :review="true" />
+        <card-detail :detail="postData" :comments="empty" :review="true" class="card" />
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.body {
+  height: 900px;
+}
+
 /* 背景框图 */
 .box {
   height: 600px;
   width: 600px;
+  /* position: absolute; */
+  overflow-y: scroll;
   margin: auto;
   /* display: flex; */
   /* flex-direction: column; */
   border-radius: 20px;
   border: #2c3e50 1px solid;
+  overflow: auto;
 }
 
 .topArea {
@@ -292,8 +301,7 @@ const emoji = [
   margin: auto;
   width: 550px;
   height: 150px;
-  font-family:
-    /* background-color: rebeccapurple; */
+  /* background-color: rebeccapurple; */
 }
 
 .img-container {
@@ -342,16 +350,23 @@ const emoji = [
   margin: 0, auto;
 }
 
+/* 预览层卡牌 */
+.card {
+  margin-left: 10px;
+  padding-left: 50px;
+}
+
+/* 预览层父元素 */
 .overlay {
   position: fixed;
-  margin: auto;
+  margin: 0 auto;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-color: white;
   /* 设置透明度的背景色 */
-  z-index: 9999;
+  z-index: 99999;
   /* 设置一个较大的z-index值，确保图层位于其他内容之上 */
 }
 

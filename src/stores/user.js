@@ -14,6 +14,7 @@ export const useUserStore = defineStore('user', () => {
 
     const getUserInfo = async ({email, password}) => {//登录,获取用户信息
         userInfo.value = await login({email, password});
+        console.log(userInfo.value);
         const focusResult = await queryUserFocus();//登陆之后获取用户关注信息
         userFocus.value = focusResult.info.follow;
         userCollect.value = focusResult.info.collected;

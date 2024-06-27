@@ -3,6 +3,7 @@ import { useRoute } from "vue-router";
 import { onMounted, ref } from "vue";
 import HomeCardAdv from "@/components/homeCardAdv.vue"
 import CardDetail from "@/components/cardDetail.vue";
+
 import { Back } from "@element-plus/icons-vue";
 import {
   doFocus, unFollow, queryUserIndex, queryUserPost, controlUserCollectOrLike, postDelete,
@@ -13,6 +14,7 @@ import { onClickOutside } from "@vueuse/core";
 import { resizeWaterFall, waterFallInit, waterFallMore } from "@/utils/waterFall";
 import { useUserStore } from "@/stores/user";
 import { ElMessage } from "element-plus";
+
 
 const route = useRoute()
 const Details = controlDetail()
@@ -27,10 +29,15 @@ const getUserInfo = async () => {
   document.title = res.data.user.username + ' .TJ论坛'
 }
 const checkFollow = (id) => {
-  if (userStore.userInfo.id === id) {
-    return false
-  }
   return userStore.userFocus.includes(id)
+}
+const checkMine = (id) => {
+  if (userStore.userInfo.id === id) {
+
+    return false
+
+  }
+  return false;
 }
 const doFocusOn = async (id) => {
   if (userStore.userInfo.id === id) {
@@ -52,6 +59,11 @@ const delFocusOn = async (id) => {
   userStore.removeFocus(1, id)
 
   await getUserInfo()
+  ElMessage({ type: 'success', message: res.info })
+}
+const cancelFocusOn = async (id) => {
+  const res = await unFollow({ id })
+  userStore.removeFocus(1, id)
   ElMessage({ type: 'success', message: res.info })
 }
 // 加载用户信息结束 ////////////////////////////////////////////////////////////
@@ -504,7 +516,9 @@ const delFocusOnAdv = async (id) => {
       <el-col :span="7" style="width: 250px!important;">
         <div class="container">
           <h2>{{ userInfo.user.username }}</h2>
+
           <!-- <button class="updBtn" @click="openDialog" v-if="userStore.userInfo.id === route.params.id">
+
             <h5>编辑个人信息</h5>
           </button> -->
         </div>
@@ -522,12 +536,14 @@ const delFocusOnAdv = async (id) => {
           </el-tooltip>
         </div>
       </el-col>
+
       <el-col :span="5" style="width: 100px;" v-if="userStore.userInfo.id !== route.params.id">
         <button class="focusOn" v-if="!checkFollow(route.params.id)" @click="doFocusOn(route.params.id)">关注</button>
         <button class="focusOff" v-else @click="delFocusOn(route.params.id)">取关</button>
       </el-col>
       <el-col :span="5" style="width: 100px;" v-else>
         <button class="focusOn" @click="openDialog">编辑信息</button>
+
       </el-col>
     </el-row>
   </div>

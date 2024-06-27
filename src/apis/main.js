@@ -190,6 +190,7 @@ export const getFocusInfo = ({id}) => {
         }
     })
 }
+
 //获取关注消息
 export const getFollowsInfo = ({id}) => {
     return http({
@@ -197,17 +198,61 @@ export const getFollowsInfo = ({id}) => {
         method: 'POST',
         data: {
             id,
+           }
+    })
+}
+
+
+//获取所有用户id
+export const getAllId = ({id}) => {
+    return http({
+        url: '/admin/getAllUsers/',
+        method: 'POST',
+        data: {
+            id
         }
     })
 }
 
-export const queryUserPostControl = ({offset, types}) => {
+//设为管理员
+export const setAdmin = ({id}) => {
+    return http({
+        url: '/admin/set_admin/',
+        method: 'POST',
+        data: {
+            id
+        }
+    })
+}
+
+//拉黑
+export const block = ({id}) => {
+    return http({
+        url: '/admin/block/',
+        method: 'POST',
+        data: {
+            id
+        }
+    })
+}
+//取消拉黑
+export const unblock = ({id}) => {
+    return http({
+        url: '/admin/unblock/',
+        method: 'POST',
+        data: {
+            id
+        }
+    })
+}
+export const queryUserPostControl = ({offset, types, id}) => {
     return http({
         url: '/user/post/control/',
         method: 'POST',
         data: {
             offset,
-            types
+            types,
+            id
         }
     })
 }
