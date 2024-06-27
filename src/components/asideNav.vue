@@ -71,13 +71,15 @@ const changeShow = () => {
           </RouterLink>
         </el-tooltip>
       </li>
-      <li class="menuItem" v-if="userStore.userInfo.status === 0">
+      <li class="menuItem" v-if="userStore.userInfo.id && userStore.userInfo.status === 0">
         <el-tooltip effect="dark" content="用户管理" placement="right">
           <RouterLink to="/manager">
-            <el-icon size="x-large">
-              <Tools/>
-            </el-icon>
-            <h5 class="menuText" :class="{ open2: isMenuOpen }">用户管理</h5>
+            <div class="menuOption">
+              <el-icon size="x-large">
+                <Tools/>
+              </el-icon>
+              <h5 class="menuText" :class="{ open2: isMenuOpen }">用户管理</h5>
+            </div>
           </RouterLink>
         </el-tooltip>
       </li>
@@ -143,10 +145,8 @@ const changeShow = () => {
   position: fixed;
   top: 0;
   left: 0;
-  /* width: 100%;
-  height: 100%; */
-  width: 100vw; /* 使用 viewport 宽度 */
-  height: 100vh; /* 使用 viewport 高度 */
+  width: 100%;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.5); /* 设置透明度的背景色 */
   z-index: 9999; /* 设置一个较大的z-index值，确保图层位于其他内容之上 */
   display: flex;
@@ -154,24 +154,15 @@ const changeShow = () => {
   align-items: center;
 }
 .login{
-  position: absolute;
-}
-/* @media (min-width: 768px) {
-  .login {
-    width: 50%;
-  }
+  /* position: absolute; */
+  position: fixed;
 }
 
-@media (min-width: 1024px) {
-  .login {
-    width: 30%;
-  }
-} */
 .close {
   border: 0;
   position: absolute;
-  left: 76%;
-  top: 18%;
+  left: 68%;
+  top: 17%;
   background-color: #fff;
   z-index: 1000; /* 设置一个较大的z-index值，确保图层位于其他内容之上 */
 }

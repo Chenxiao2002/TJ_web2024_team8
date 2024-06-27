@@ -99,8 +99,15 @@ const router = createRouter({
                       ],                           
                 },
                 {
-                    path: '/manager',
+                    path: 'manager',
                     component: () => import("@/views/manager/manager.vue"),
+                    meta: {
+                        title: '用户管理 .TJ论坛',
+                    },
+                },
+                {
+                    path: 'single/:id',
+                    component: () => import("@/views/manager/single.vue"),
                     meta: {
                         title: '用户管理 .TJ论坛',
                     },

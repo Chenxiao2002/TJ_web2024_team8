@@ -191,14 +191,24 @@ export const getFocusInfo = ({id}) => {
     })
 }
 
-
-export const queryUserPostControl = ({offset, types}) => {
+//获取所有用户id
+export const getAllId = ({id}) => {
+    return http({
+        url: '/admin/getAllUsers/',
+        method: 'POST',
+        data: {
+            id
+        }
+    })
+}
+export const queryUserPostControl = ({offset, types,id}) => {
     return http({
         url: '/user/post/control/',
         method: 'POST',
         data: {
             offset,
-            types
+            types,
+            id
         }
     })
 }
