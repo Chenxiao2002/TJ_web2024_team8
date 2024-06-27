@@ -40,7 +40,7 @@ const route = useRoute();
 const activeTab = ref('comment');
 
 const toComment = () => {
-  router.push({ name: 'comment' });
+  router.push({ path: 'comment' });
   activeTab.value = 'comment';
 };
 
@@ -87,7 +87,7 @@ onMounted(() => {
   .reds-sticky {
     top: 72px;
     position: fixed;
-    z-index: 10010;
+    z-index: 1;
     width: 40rem;
     box-sizing: border-box;
     height: 72px;
