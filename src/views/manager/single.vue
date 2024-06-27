@@ -2,21 +2,18 @@
 import {computed, onBeforeMount, onMounted, ref} from 'vue'
 import {queryUserPostControl, postDelete, controlUserCollectOrLike, unFollow, removeFan} from "@/apis/main";
 import {ElMessage} from 'element-plus'
+import {Back} from "@element-plus/icons-vue";
 import {useUserStore} from "@/stores/user";
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import {useTableStore} from "@/stores/tableStore";
 import {InfoFilled} from "@element-plus/icons-vue";
-import {useRouter} from "vue-router";
+import {useRouter,useRoute} from "vue-router";
 
+const route = useRoute()
+const id = route.params.id;
 const router = useRouter()
 const userStore = useUserStore();
-const checkLogin = () => {
-  if (!userStore.userInfo.id) {
-    router.replace('/login')
-  }
-}
 
-onBeforeMount(() => checkLogin())
 // 配置全局语言和表格缓存//////////////////////////////////////////////
 const locale = zhCn
 const tableStore = useTableStore();
@@ -25,33 +22,18 @@ const loading = ref(true)
 const value = ref('posts')
 const options = [
   {
-    label: '帖子管理',
+    label: '帖子详情',
     options: [
-      {
-        value: 'posts',
-        label: '个人帖子管理',
-      },
-      {
-        value: 'collected',
-        label: '收藏帖子管理',
-      },
-      {
-        value: 'favorites',
-        label: '喜欢帖子管理'
-      }
+      { value: 'posts', label: '个人帖子详情' },
+      { value: 'collected', label: '收藏帖子详情' },
+      { value: 'favorites', label: '喜欢帖子详情' }
     ],
   },
   {
-    label: '个人用户管理',
+    label: '个人用户详情',
     options: [
-      {
-        value: 'fans',
-        label: '粉丝管理',
-      },
-      {
-        value: 'follow',
-        label: '关注管理',
-      },
+      { value: 'fans', label: '粉丝详情' },
+      { value: 'follow', label: '关注详情' },
     ],
   },
 ]
@@ -62,38 +44,31 @@ const type = computed(() => {
     return 2
 })
 const changeShow = async () => {
-  // 先将多选置空
-  multipleSelection.value = [];
   const valueType = value.value;
   const offset = 0;
   const types = valueType;
-  const data = tableStore.retrieveData(valueType, 1);
-  if (type.value === 1) {
-    if (data) {
-      tableData.value = data.data;
-      total_post.value = data.total;
-    } else {
-      loading.value = true
-      const res = await queryUserPostControl({offset, types});
+  
+  loading.value = true
+  try {
+  const res = await queryUserPostControl({ offset, types, id });
+
+    if (type.value === 1) {
       tableData.value = res.info;
       total_post.value = res.total;
-      tableStore.storeMessage(types, 1, res.info, res.total);
-      loading.value = false
-    }
-  } else {
-    if (data) {
-      userData.value = data.data;
-      total_user.value = data.total;
     } else {
-      loading.value = true
-      const res = await queryUserPostControl({offset, types});
       userData.value = res.info;
       total_user.value = res.total;
-      tableStore.storeMessage(types, 1, res.info, res.total);
-      loading.value = false
     }
+
+    // 重置当前页码为1
+    currentPage.value = 1;
+  } catch (error) {
+    console.error("Error fetching data: ", error);
+    ElMessage.error('获取数据失败');
+  } finally {
+    // 请求完成后，将loading设置为false
+    loading.value = false;
   }
-  currentPage.value = 1;
 };
 ////////////////////////////////////////////////////////////////
 
@@ -102,51 +77,21 @@ const tableData = ref([])
 const userData = ref([])
 const multipleSelection = ref([])
 const tableRef = ref(null)
+// 获得初始数据
 const getData = async () => {
   const offset = 0
   const types = value.value
-  const data = tableStore.retrieveData(types, 1);
-  if (data) {
-    tableData.value = data.data;
-    total_post.value = data.total;
-    loading.value = false
-  } else {
-    loading.value = true
-    const res = await queryUserPostControl({offset, types})
-    tableData.value = res.info
-    total_post.value = res.total
-    tableStore.storeMessage(types, 1, res.info, res.total)
-    loading.value = false
-  }
+
+  loading.value = true
+  const res = await queryUserPostControl({offset, types ,id})
+  console.log(res);
+  tableData.value = res.info
+  total_post.value = res.total
+  
+  loading.value = false
 }
 const handleSelectionChange = (val) => {
   multipleSelection.value = val
-}
-const handleDelete = async (index, row) => {
-  const id = row.id
-  if (type.value === 1) {
-    tableData.value.splice(index, 1)
-    if (value.value === 'posts') {
-      const res = await postDelete({id})
-      ElMessage({type: 'success', message: res.success})
-    } else if (value.value === 'collected' || value.value === 'favorites') {
-      const post_id = id
-      const operator = 1
-      const type = value.value === 'collected' ? 'collect' : 'like'
-      const res = await controlUserCollectOrLike({post_id, operator, type})
-      ElMessage({type: 'success', message: res.info})
-    }
-  } else {
-    userData.value.splice(index, 1)
-    if (value.value === 'fans') {
-      const res = await removeFan({id})
-      ElMessage({type: 'success', message: res.info})
-    } else if (value.value === 'follow') {
-      const res = await unFollow({id})
-      userStore.removeFocus(1, id)
-      ElMessage({type: 'success', message: res.info})
-    }
-  }
 }
 ////////////////////////////////////////////////////////////////
 
@@ -158,36 +103,21 @@ const total_user = ref(0)
 const handleCurrentChange = async (val) => {
   const offset = (val - 1) * pageSize.value;
   const types = value.value;
-  const cachedData = tableStore.retrieveData(types, val);
   let data, total;
   if (type.value === 1) {
-    if (cachedData) {
-      const cachedData = tableStore.retrieveData(types, val);
-      data = cachedData.data;
-      total = cachedData.total;
-    } else {
-      loading.value = true
-      const res = await queryUserPostControl({offset, types});
-      data = res.info;
-      total = res.total;
-      tableStore.storeMessage(types, val, data, total);
-      loading.value = false
-    }
+    loading.value = true
+    const res = await queryUserPostControl({offset, types, id});
+    data = res.info;
+    total = res.total;
+    loading.value = false
     tableData.value = data;
     total_post.value = total;
   } else {
-    if (cachedData) {
-      const cachedData = tableStore.retrieveData(types, val);
-      data = cachedData.data;
-      total = cachedData.total;
-    } else {
-      loading.value = true
-      const res = await queryUserPostControl({offset, types});
-      data = res.info;
-      total = res.total;
-      tableStore.storeMessage(types, val, data, total);
-      loading.value = false
-    }
+    loading.value = true
+    const res = await queryUserPostControl({offset, types});
+    data = res.info;
+    total = res.total;
+    loading.value = false
     userData.value = data;
     total_user.value = total;
   }
@@ -196,48 +126,40 @@ const handleCurrentChange = async (val) => {
 onMounted(() => {
   getData()
 })
+
+const close = () => {
+  router.push(`/manager`)
+};
 </script>
 
 <template>
   <el-config-provider :locale="locale">
-
-    <el-select
-        v-model="value"
-        placeholder="Select"
-        @change="changeShow"
-        style="margin-bottom: 20px"
-    >
-      <template #prefix>
-        <el-tooltip
-            placement="top"
-            effect="light"
-        >
-          <template #content>
-            <h2 style="color:red;">表格内容会缓存到本地</h2>
-            <p>如果进行
-              <span style="color:red;">修改数据</span>
-              没有更新
-              <span style="color:red;">刷新就可以了</span>
-            </p>
-          </template>
-          <el-icon>
-            <info-filled/>
-          </el-icon>
-        </el-tooltip>
-      </template>
-      <el-option-group
-          v-for="group in options"
-          :key="group.label"
-          :label="group.label"
+    <div class="head">
+      <button class="backPage" @click="close">
+        <el-icon>
+          <Back/>
+        </el-icon>
+      </button>
+      <el-select
+          v-model="value"
+          placeholder="Select"
+          @change="changeShow"
+          style="width:50%;"
       >
-        <el-option
-            v-for="item in group.options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-        />
-      </el-option-group>
-    </el-select>
+        <el-option-group
+            v-for="group in options"
+            :key="group.label"
+            :label="group.label"
+        >
+          <el-option
+              v-for="item in group.options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-option-group>
+      </el-select>
+    </div>
     <div style="display:flex;align-items: center;flex-direction: column" v-if="type === 1">
       <el-table
           :data="tableData"
@@ -249,7 +171,7 @@ onMounted(() => {
           border
           stripe
       >
-        <el-table-column type="selection" width="55"/>
+        <!-- <el-table-column type="selection" width="55"/> -->
         <el-table-column label="日期" sortable prop="date"/>
         <el-table-column label="作者" prop="username"/>
         <el-table-column label="标题" prop="title"/>
@@ -257,21 +179,7 @@ onMounted(() => {
         <el-table-column label="评论量" sortable prop="commentCount"/>
         <el-table-column label="点赞量" sortable prop="likeCount"/>
         <el-table-column label="收藏量" sortable prop="collectCount"/>
-        <el-table-column align="center" label="操作">
-          <template #default="scope">
-            <el-button
-                size="small"
-                type="danger"
-                @click="handleDelete(scope.$index, scope.row)">
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
       </el-table>
-      <div style="margin-top: 20px" v-show="multipleSelection.length !== 0">
-        <el-button disabled round>选中删除</el-button>
-        <el-button @click="tableRef.clearSelection()" round>清空全选</el-button>
-      </div>
       <div class="pageArea">
         <el-pagination
             v-model:current-page="currentPage"
@@ -293,7 +201,7 @@ onMounted(() => {
           v-loading="loading"
           stripe
       >
-        <el-table-column type="selection" width="55"/>
+        <!-- <el-table-column type="selection" width="55"/> -->
         <el-table-column align="center" label="头像">
           <template #default="scope">
             <el-avatar :src="scope.row.avatar"></el-avatar>
@@ -303,21 +211,7 @@ onMounted(() => {
         <el-table-column label="粉丝量" prop="fans"/>
         <el-table-column label="关注量" prop="follow"/>
         <el-table-column label="笔记数" prop="note"/>
-        <el-table-column align="center" label="操作">
-          <template #default="scope">
-            <el-button
-                size="small"
-                type="danger"
-                @click="handleDelete(scope.$index, scope.row)">
-              移除
-            </el-button>
-          </template>
-        </el-table-column>
       </el-table>
-      <div style="margin-top: 20px" v-show="multipleSelection.length !== 0">
-        <el-button disabled round>选中删除</el-button>
-        <el-button @click="tableRef.clearSelection()" round>清空全选</el-button>
-      </div>
       <div class="pageArea">
         <el-pagination
             v-model:current-page="currentPage"
@@ -335,6 +229,27 @@ onMounted(() => {
 <style scoped>
 .pageArea {
   margin-top: 20px;
+}
+.head{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* 设置按钮和选择框之间的间隔 */
+  margin-bottom: 20px;
+}
+.backPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  cursor: pointer;  
+  /* 鼠标指针将变成手型（通常是一个指向的手指），这通常用于指示元素是可点击的。 */
+  background-color: #8db4ca;
+  color: #ffffff;
+  font-size: 20px; /* 调整图标大小 */
 }
 
 .item {
