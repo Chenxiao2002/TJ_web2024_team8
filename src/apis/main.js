@@ -191,6 +191,18 @@ export const getFocusInfo = ({id}) => {
     })
 }
 
+//获取关注消息
+export const getFollowsInfo = ({id}) => {
+    return http({
+        url: '/getFollowsInfo/',
+        method: 'POST',
+        data: {
+            id,
+           }
+    })
+}
+
+
 //获取所有用户id
 export const getAllId = ({id}) => {
     return http({
