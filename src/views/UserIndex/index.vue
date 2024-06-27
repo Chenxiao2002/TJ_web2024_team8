@@ -268,6 +268,7 @@ const doUpdate = async () => {
     userStore.changeInfo({ username, signature, avatar });
     ElMessage({ type: 'success', message: '用户信息更新成功' });
     dialogFormVisible.value = false;
+    await getUserInfo()
     return;
   }
 
@@ -276,6 +277,7 @@ const doUpdate = async () => {
     userStore.changeInfo({ username, signature, avatar });
     ElMessage({ type: 'success', message: '头像上传成功' });
     dialogFormVisible.value = false;
+    await getUserInfo()
     return;
   }
 
@@ -285,6 +287,7 @@ const doUpdate = async () => {
     userStore.changeInfo({ username, signature, avatar });
     ElMessage({ type: 'success', message: res.info });
     dialogFormVisible.value = false;
+    await getUserInfo()
   }
 };
 
@@ -430,18 +433,20 @@ const delLike = async () => {
   </div>
   <el-dialog v-model="dialogFormVisible" title="更新个人信息" center draggable>
     <div class="fileUpload">
-      <el-upload v-model:file-list="fileList" ref="upload" action="http://123.60.149.233:8000/user/avatar/" :limit="1"
-        :on-exceed="handleExceed" :auto-upload="false" :on-change="handleChange" :headers="userStore.headersObj"
-        :on-success="onSuccess" :on-error="onError">
-        <template #trigger>
-          <el-button class="btn" color="#2f779d" type="primary" round>选择一个文件</el-button>
-        </template>
-        <template #tip>
-          <div class="el-upload__tip" style="color:red;text-align: left">
-            仅限一个文件，新文件将会被覆盖
-          </div>
-        </template>
-      </el-upload>
+      <div class="fileUploadContainer" style="margin-left: 7%;">
+        <el-upload v-model:file-list="fileList" ref="upload" action="http://123.60.149.233:8000/user/avatar/" :limit="1"
+          :on-exceed="handleExceed" :auto-upload="false" :on-change="handleChange" :headers="userStore.headersObj"
+          :on-success="onSuccess" :on-error="onError">
+          <template #trigger>
+            <el-button class="btn" color="#2f779d" type="primary" round>选择一个文件</el-button>
+          </template>
+          <template #tip>
+            <div class="el-upload__tip" style="color:red;text-align: left">
+              仅限一个文件，新文件将会被覆盖
+            </div>
+          </template>
+        </el-upload>
+      </div>
     </div>
     <div class="fileUpload">
       <el-form :model="form" ref="formRef" :rules="rules" label-position="top">
