@@ -6,61 +6,46 @@ import {useUserStore} from "@/stores/user";
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import {useTableStore} from "@/stores/tableStore";
 import {InfoFilled} from "@element-plus/icons-vue";
-import {useRouter} from "vue-router";
+import {useRouter , useRoute} from "vue-router";
 
+const route  = useRoute()
+const id = route.params.id
+console.log(id);
 const router = useRouter()
 const userStore = useUserStore();
-const checkLogin = () => {
-  if (!userStore.userInfo.id) {
-    router.replace('/login')
-  }
-}
 
-onBeforeMount(() => checkLogin())
+// 检查用户是否登陆如果未登录则重定向到登录页面。
 // 配置全局语言和表格缓存//////////////////////////////////////////////
 const locale = zhCn
 const tableStore = useTableStore();
 const loading = ref(true)
 // 控制选择器 /////////////////////////////////////////////////////
-const value = ref('posts')
-const options = [
+const value = ref('posts')  //选择器的当前选中值。
+const options = [   //选择器的选项配置。
   {
     label: '帖子管理',
     options: [
-      {
-        value: 'posts',
-        label: '个人帖子管理',
-      },
-      {
-        value: 'collected',
-        label: '收藏帖子管理',
-      },
-      {
-        value: 'favorites',
-        label: '喜欢帖子管理'
-      }
+      { value: 'posts', label: '个人帖子管理' },
+      { value: 'collected', label: '收藏帖子管理' },
+      { value: 'favorites', label: '喜欢帖子管理' }
     ],
   },
   {
     label: '个人用户管理',
     options: [
-      {
-        value: 'fans',
-        label: '粉丝管理',
-      },
-      {
-        value: 'follow',
-        label: '关注管理',
-      },
+      { value: 'fans', label: '粉丝管理' },
+      { value: 'follow', label: '关注管理' },
     ],
   },
 ]
+//根据 value 计算当前选中的类型（帖子管理或用户管理）。
 const type = computed(() => {
   if (value.value === 'posts' || value.value === 'collected' || value.value === 'favorites')
     return 1
   else
     return 2
 })
+//根据选择器的值加载相应的数据。
 const changeShow = async () => {
   // 先将多选置空
   multipleSelection.value = [];
@@ -102,6 +87,7 @@ const tableData = ref([])
 const userData = ref([])
 const multipleSelection = ref([])
 const tableRef = ref(null)
+//初始数据获取函数。
 const getData = async () => {
   const offset = 0
   const types = value.value
@@ -119,9 +105,11 @@ const getData = async () => {
     loading.value = false
   }
 }
+//处理表格行选择变化。
 const handleSelectionChange = (val) => {
   multipleSelection.value = val
 }
+//处理表格行删除操作。
 const handleDelete = async (index, row) => {
   const id = row.id
   if (type.value === 1) {
@@ -155,6 +143,7 @@ const pageSize = ref(10)
 const currentPage = ref(1)
 const total_post = ref(0)
 const total_user = ref(0)
+//处理分页变化。
 const handleCurrentChange = async (val) => {
   const offset = (val - 1) * pageSize.value;
   const types = value.value;
@@ -200,36 +189,9 @@ onMounted(() => {
 
 <template>
   <el-config-provider :locale="locale">
-
-    <el-select
-        v-model="value"
-        placeholder="Select"
-        @change="changeShow"
-        style="margin-bottom: 20px"
-    >
-      <template #prefix>
-        <el-tooltip
-            placement="top"
-            effect="light"
-        >
-          <template #content>
-            <h2 style="color:red;">表格内容会缓存到本地</h2>
-            <p>如果进行
-              <span style="color:red;">修改数据</span>
-              没有更新
-              <span style="color:red;">刷新就可以了</span>
-            </p>
-          </template>
-          <el-icon>
-            <info-filled/>
-          </el-icon>
-        </el-tooltip>
-      </template>
-      <el-option-group
-          v-for="group in options"
-          :key="group.label"
-          :label="group.label"
-      >
+    <!-- 选择器 -->
+    <el-select v-model="value" placeholder="Select" @change="changeShow" style="margin-bottom: 20px">
+      <el-option-group v-for="group in options" :key="group.label" :label="group.label">
         <el-option
             v-for="item in group.options"
             :key="item.value"
@@ -239,6 +201,7 @@ onMounted(() => {
       </el-option-group>
     </el-select>
     <div style="display:flex;align-items: center;flex-direction: column" v-if="type === 1">
+      <!-- 表格 -->
       <el-table
           :data="tableData"
           style="width: 100%"
@@ -259,10 +222,7 @@ onMounted(() => {
         <el-table-column label="收藏量" sortable prop="collectCount"/>
         <el-table-column align="center" label="操作">
           <template #default="scope">
-            <el-button
-                size="small"
-                type="danger"
-                @click="handleDelete(scope.$index, scope.row)">
+            <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">
               删除
             </el-button>
           </template>
@@ -272,6 +232,7 @@ onMounted(() => {
         <el-button disabled round>选中删除</el-button>
         <el-button @click="tableRef.clearSelection()" round>清空全选</el-button>
       </div>
+      <!-- 分页器 -->
       <div class="pageArea">
         <el-pagination
             v-model:current-page="currentPage"

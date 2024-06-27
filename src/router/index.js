@@ -100,7 +100,7 @@ const router = createRouter({
                 },
                 {
                     path: 'manager',
-                    component: () => import("@/views/manager/manager.vue"),
+                    component: () => import("@/views/manager/single.vue"),
                     meta: {
                         title: '用户管理 .TJ论坛',
                     },
