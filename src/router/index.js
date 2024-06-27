@@ -96,9 +96,14 @@ const router = createRouter({
                             showfater: true
                          }
                         },
-                      ],
-              
-                    
+                      ],                           
+                },
+                {
+                    path: '/manager',
+                    component: () => import("@/views/manager/manager.vue"),
+                    meta: {
+                        title: '用户管理 .TJ论坛',
+                    },
                 },
             ],
         },

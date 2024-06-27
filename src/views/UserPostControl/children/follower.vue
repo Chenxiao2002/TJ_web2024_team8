@@ -1,7 +1,7 @@
 <template>
   <div ref="loadingContainer" class="collection-container">
     <div v-if="followers.length === 0 && !loading">
-      <el-empty description="现在还没有点赞消息..." />
+      <el-empty description="现在还没有新增关注消息..." />
     </div>
     <div v-else>
       <ul class="agree-container">
