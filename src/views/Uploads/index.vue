@@ -87,7 +87,7 @@ const doUploads = async () => {
     title: title.value,
     content: content.value,
     user_id: userStore.userInfo.id,
-    topic: valueTopic.value,
+    category: valueTopic.value,
     user: valueUser.value,
     emoji: valueEmoji.value,
   }
@@ -144,24 +144,28 @@ const valueUser = ref('')
 const valueEmoji = ref('')
 const topics = [
   {
-    value: "study",
+    value: "学习",
     label: "学习"
   },
   {
-    value: "selectCourse",
+    value: "选课",
     label: "选课"
   },
   {
-    value: "carpool",
+    value: "拼车",
     label: "拼车"
   },
   {
-    value: "internship",
+    value: "实习",
     label: "实习"
   },
   {
-    value: "makeFriends",
+    value: "交友",
     label: "交友"
+  },
+  {
+    value: "日常",
+    label: "日常"
   },
 ]
 //获取用户信息
