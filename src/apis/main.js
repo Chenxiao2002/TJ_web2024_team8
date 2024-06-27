@@ -190,7 +190,16 @@ export const getFocusInfo = ({id}) => {
         }
     })
 }
-
+//获取关注消息
+export const getFollowsInfo = ({id}) => {
+    return http({
+        url: '/getFollowsInfo/',
+        method: 'POST',
+        data: {
+            id,
+        }
+    })
+}
 
 export const queryUserPostControl = ({offset, types}) => {
     return http({

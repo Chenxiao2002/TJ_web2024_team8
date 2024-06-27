@@ -4,7 +4,10 @@ import { onMounted, ref } from "vue";
 import HomeCardAdv from "@/components/homeCardAdv.vue"
 import CardDetail from "@/components/cardDetail.vue";
 import { Back } from "@element-plus/icons-vue";
-import { doFocus, unFollow, queryUserIndex, queryUserPost, controlUserCollectOrLike, postDelete } from "@/apis/main";
+import {
+  doFocus, unFollow, queryUserIndex, queryUserPost, controlUserCollectOrLike, postDelete,
+  getFocusInfo, getFollowsInfo
+} from "@/apis/main";
 import { controlDetail } from "@/stores/controlDetail";
 import { onClickOutside } from "@vueuse/core";
 import { resizeWaterFall, waterFallInit, waterFallMore } from "@/utils/waterFall";
@@ -317,7 +320,7 @@ const selStar = ref(null)
 const selLike = ref(null)
 
 const doAllSent = () => {
-  if (!selLike.value) {
+  if (!selSent.value) {
     return
   }
   if (allSent.value) {
@@ -361,7 +364,7 @@ const delSent = async () => {
 }
 
 const doAllStar = () => {
-  if (!selLike.value) {
+  if (!selStar.value) {
     return
   }
   if (allStar.value) {
@@ -448,6 +451,48 @@ const delLike = async () => {
   resizeWaterFall(columns, card_columns_like, arrHeight, userFavorite)
 }
 
+const focusVisible = ref(false)
+const focusInfo = ref([])
+
+const followVisible = ref(false)
+const followInfo = ref([])
+
+const openFocusDialog = async () => {
+  if (userStore.userInfo.id !== route.params.id) {
+    ElMessage({ type: 'warning', message: '您不能查看其他人的关注列表' })
+    return
+  }
+  focusVisible.value = true
+  const res = await getFollowsInfo({ id: userStore.userInfo.id })
+  focusInfo.value = res.info
+  console.log("focus: ", focusInfo.value)
+}
+const openFollowDialog = async () => {
+  if (userStore.userInfo.id !== route.params.id) {
+    ElMessage({ type: 'warning', message: '您不能查看其他人的粉丝列表' })
+    return
+  }
+  followVisible.value = true
+  const res = await getFocusInfo({ id: userStore.userInfo.id })
+  followInfo.value = res.info
+  console.log("follow: ", followInfo.value)
+}
+const doFocusOnAdv = async (id) => {
+  await doFocusOn(id)
+
+  const res = await getFocusInfo({ id: userStore.userInfo.id })
+  console.log("before follow: ", followInfo.value)
+  followInfo.value = res.info
+  console.log("after follow: ", followInfo.value)
+}
+const delFocusOnAdv = async (id) => {
+  await delFocusOn(id)
+
+  const res = await getFollowsInfo({ id: userStore.userInfo.id })
+  console.log("before focus: ", focusInfo.value)
+  focusInfo.value = res.info
+  console.log("after focus: ", focusInfo.value)
+}
 </script>
 
 <template>
@@ -467,10 +512,10 @@ const delLike = async () => {
         <div class="tagArea">
           <!-- 使用 el-tooltip 包裹 el-tag，并设置 content 属性 -->
           <el-tooltip content="关注数目" placement="bottom" effect="light">
-            <el-tag class="ml-2" type="success" round>{{ userInfo.user.focusOn }} 关注</el-tag>
+            <el-tag class="ml-2" type="success" round @click="openFocusDialog">{{ userInfo.user.focusOn }} 关注</el-tag>
           </el-tooltip>
           <el-tooltip content="粉丝数目" placement="bottom" effect="light">
-            <el-tag class="ml-2" type="info" round>{{ userInfo.user.fans }} 粉丝</el-tag>
+            <el-tag class="ml-2" type="info" round @click="openFollowDialog">{{ userInfo.user.fans }} 粉丝</el-tag>
           </el-tooltip>
           <el-tooltip content="笔记数目" placement="bottom" effect="light">
             <el-tag class="ml-2" type="warning" round>{{ userInfo.user.postsCount }} 笔记数</el-tag>
@@ -479,13 +524,49 @@ const delLike = async () => {
       </el-col>
       <el-col :span="5" style="width: 100px;" v-if="userStore.userInfo.id !== route.params.id">
         <button class="focusOn" v-if="!checkFollow(route.params.id)" @click="doFocusOn(route.params.id)">关注</button>
-        <button class="focusOn" v-else @click="delFocusOn(route.params.id)">取消关注</button>
+        <button class="focusOff" v-else @click="delFocusOn(route.params.id)">取关</button>
       </el-col>
       <el-col :span="5" style="width: 100px;" v-else>
         <button class="focusOn" @click="openDialog">编辑信息</button>
       </el-col>
     </el-row>
   </div>
+  <el-dialog v-model="focusVisible" title="我的关注列表" center draggable>
+    <div class="following-list">
+      <div class="user-item" v-for="focus in focusInfo" :key="focus.id">
+        <RouterLink :to="`/user/index/${focus.id}`">
+          <img :src="focus.avatar" alt="avatar" class="avatar" />
+        </RouterLink>
+        <p style="margin-left: 5%; margin-right: 5%;">用户昵称: {{ focus.username }}</p>
+        <p style="margin-left: 5%; margin-right: 5%;">关注时间: {{ focus.createTime }}</p>
+        <p style="margin-left: 5%; margin-right: 5%;">{{ focus.back ? "已互粉" : " " }}</p>
+        <button class="delBtn" @click="delFocusOnAdv(focus.id)">取关</button>
+      </div>
+    </div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="focusVisible = false" round>确认</el-button>
+      </span>
+    </template>
+  </el-dialog>
+  <el-dialog v-model="followVisible" title="我的粉丝列表" center draggable>
+    <div class="following-list">
+      <div class="user-item" v-for="follow in followInfo" :key="follow.id">
+        <RouterLink :to="`/user/index/${follow.id}`">
+          <img :src="follow.avatar" alt="avatar" class="avatar" />
+        </RouterLink>
+        <p style="margin-left: 5%; margin-right: 5%;">用户昵称: {{ follow.username }}</p>
+        <p style="margin-left: 5%; margin-right: 5%;">关注时间: {{ follow.createTime }}</p>
+        <p style="margin-left: 5%; margin-right: 5%;">{{ follow.back ? "已互粉" : " " }}</p>
+        <button class="delBtn" :disabled="!follow.back" @click="doFocusOnAdv(follow.id)">关注</button>
+      </div>
+    </div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="followVisible = false" round>确认</el-button>
+      </span>
+    </template>
+  </el-dialog>
   <el-dialog v-model="dialogFormVisible" title="更新个人信息" center draggable>
     <div class="fileUpload">
       <div class="fileUploadContainer" style="margin-left: 7%; margin-top: 10px;">
@@ -642,6 +723,26 @@ const delLike = async () => {
   background-color: #8db4ca;
 }
 
+.focusOff {
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 40px;
+  line-height: 18px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: lightcoral;
+  border-radius: 1000px;
+  color: #fff;
+  border-color: transparent;
+  margin-top: 1rem;
+}
+
+.focusOff:hover {
+  background-color: pink;
+}
+
 .tagArea {
   width: 400px;
 }
@@ -717,6 +818,48 @@ label {
 
 input[type="checkbox"] {
   margin-right: 8px;
+}
+
+.following-list {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eaeaea;
+  transition: background-color 0.3s;
+}
+
+.user-item:last-child {
+  border-bottom: none;
+  /* 移除最后一个用户项的底部边框 */
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-right: 20px;
+}
+
+.username-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-right: 20px;
+}
+
+.username-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #333;
 }
 
 .delBtn {
