@@ -22,7 +22,7 @@ http.interceptors.request.use(config => {
 
 // axios响应式拦截器
 http.interceptors.response.use(res => res.data, e => {
-    if (e.response.status === 401) {
+    if (e.response.status === 401||e.response.status === 402) {
         ElMessage({
             type: 'warning',
             message: e.response.data.error
