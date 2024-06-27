@@ -163,21 +163,17 @@ const topics = [
     value: "交友",
     label: "交友"
   },
-  {
-    value: "日常",
-    label: "日常"
-  },
 ]
 //获取用户信息
 
 
 const user = [
   {
-    value: "user1",
+    value: "用户1",
     label: "用户1"
   },
   {
-    value: "user2",
+    value: "用户2",
     label: "用户2"
   }
 ]
@@ -275,7 +271,7 @@ const emoji = [
             <Back />
           </el-icon>
         </button>
-        <card-detail :detail="postData" :comments="empty" :review="true" />
+        <card-detail :detail="postData" :comments="empty" :review="true" class="card" />
       </div>
     </div>
   </div>
@@ -354,16 +350,23 @@ const emoji = [
   margin: 0, auto;
 }
 
+/* 预览层卡牌 */
+.card {
+  margin-left: 10px;
+  padding-left: 50px;
+}
+
+/* 预览层父元素 */
 .overlay {
   position: fixed;
-  margin: auto;
+  margin: 0 auto;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-color: white;
   /* 设置透明度的背景色 */
-  z-index: 9999;
+  z-index: 99999;
   /* 设置一个较大的z-index值，确保图层位于其他内容之上 */
 }
 
