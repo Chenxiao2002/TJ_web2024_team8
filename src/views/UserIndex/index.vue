@@ -197,8 +197,10 @@ onMounted(async () => {
   await getUserInfo()
   await Toggle()
   resize()
-  console.log("params: ", route.params.id)
-  console.log("my_uid: ", userStore.userInfo.id)
+  // console.log("params: ", route.params.id)
+  // console.log("my_uid: ", userStore.userInfo.id)
+  // console.log("userStore: ")
+  // console.log(userStore)
 })
 
 import { genFileId } from 'element-plus'
@@ -315,17 +317,23 @@ const selStar = ref(null)
 const selLike = ref(null)
 
 const doAllSent = () => {
+  if (!selLike.value) {
+    return
+  }
   if (allSent.value) {
     selSent.value.selectedCardIds = userPost.value.map(item => item.id)
   }
   else {
     selSent.value.selectedCardIds = []
   }
-  console.log("allSent: ", allSent.value)
-  console.log("selSent: ", selSent.value.length)
+  // console.log("allSent: ", allSent.value)
+  // console.log("selSent: ", selSent.value.length)
 }
 const delSent = async () => {
-  console.log("sent: ", selSent.value.selectedCardIds)
+  if (!selSent.value) {
+    return
+  }
+  // console.log("sent: ", selSent.value.selectedCardIds)
   if (selSent.value.selectedCardIds.length === 0) {
     ElMessage({ type: 'warning', message: '您尚未选中发送的帖子' })
     return
@@ -353,17 +361,23 @@ const delSent = async () => {
 }
 
 const doAllStar = () => {
+  if (!selLike.value) {
+    return
+  }
   if (allStar.value) {
     selStar.value.selectedCardIds = userCollect.value.map(item => item.id)
   }
   else {
     selStar.value.selectedCardIds = []
   }
-  console.log("allStar: ", allStar.value)
-  console.log("selStar: ", selStar.value.length)
+  // console.log("allStar: ", allStar.value)
+  // console.log("selStar: ", selStar.value.length)
 }
 const delStar = async () => {
-  console.log("star: ", selStar.value.selectedCardIds)
+  if (!selStar.value) {
+    return
+  }
+  // console.log("star: ", selStar.value.selectedCardIds)
   if (selStar.value.selectedCardIds.length === 0) {
     ElMessage({ type: 'warning', message: '您尚未选中收藏的帖子' })
     return
@@ -391,17 +405,23 @@ const delStar = async () => {
 }
 
 const doAllLike = () => {
+  if (!selLike.value) {
+    return
+  }
   if (allLike.value) {
     selLike.value.selectedCardIds = userFavorite.value.map(item => item.id)
   }
   else {
     selLike.value.selectedCardIds = []
   }
-  console.log("allLike: ", allLike.value)
-  console.log("selLike: ", selLike.value.selectedCardIds.length)
+  // console.log("allLike: ", allLike.value)
+  // console.log("selLike: ", selLike.value.selectedCardIds.length)
 }
 const delLike = async () => {
-  console.log("like: ", selLike.value.selectedCardIds)
+  if (!selLike.value) {
+    return
+  }
+  // console.log("like: ", selLike.value.selectedCardIds)
   if (selLike.value.selectedCardIds.length === 0) {
     ElMessage({ type: 'warning', message: '您尚未选中点赞的帖子' })
     return
@@ -445,9 +465,16 @@ const delLike = async () => {
         </div>
         <p>{{ userInfo.user.signature }}</p>
         <div class="tagArea">
-          <el-tag class="ml-2" type="success" round>{{ userInfo.user.focusOn }} 关注</el-tag>
-          <el-tag class="ml-2" type="info" round>{{ userInfo.user.fans }} 粉丝</el-tag>
-          <el-tag class="ml-2" type="warning" round>{{ userInfo.user.postsCount }} 笔记数</el-tag>
+          <!-- 使用 el-tooltip 包裹 el-tag，并设置 content 属性 -->
+          <el-tooltip content="关注数目" placement="bottom" effect="light">
+            <el-tag class="ml-2" type="success" round>{{ userInfo.user.focusOn }} 关注</el-tag>
+          </el-tooltip>
+          <el-tooltip content="粉丝数目" placement="bottom" effect="light">
+            <el-tag class="ml-2" type="info" round>{{ userInfo.user.fans }} 粉丝</el-tag>
+          </el-tooltip>
+          <el-tooltip content="笔记数目" placement="bottom" effect="light">
+            <el-tag class="ml-2" type="warning" round>{{ userInfo.user.postsCount }} 笔记数</el-tag>
+          </el-tooltip>
         </div>
       </el-col>
       <el-col :span="5" style="width: 100px;" v-if="userStore.userInfo.id !== route.params.id">
