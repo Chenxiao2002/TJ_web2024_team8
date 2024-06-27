@@ -4,7 +4,7 @@ import { onMounted, ref } from "vue";
 import HomeCardAdv from "@/components/homeCardAdv.vue"
 import CardDetail from "@/components/cardDetail.vue";
 import { Back } from "@element-plus/icons-vue";
-import { doFocus, queryUserIndex, queryUserPost, controlUserCollectOrLike, postDelete } from "@/apis/main";
+import { doFocus, unFollow, queryUserIndex, queryUserPost, controlUserCollectOrLike, postDelete } from "@/apis/main";
 import { controlDetail } from "@/stores/controlDetail";
 import { onClickOutside } from "@vueuse/core";
 import { resizeWaterFall, waterFallInit, waterFallMore } from "@/utils/waterFall";
@@ -25,7 +25,7 @@ const getUserInfo = async () => {
 }
 const checkFollow = (id) => {
   if (userStore.userInfo.id === id) {
-    return true
+    return false
   }
   return userStore.userFocus.includes(id)
 }
@@ -36,6 +36,19 @@ const doFocusOn = async (id) => {
   }
   const res = await doFocus({ id })
   userStore.extendUserInfo(1, id)
+
+  await getUserInfo()
+  ElMessage({ type: 'success', message: res.info })
+}
+const delFocusOn = async (id) => {
+  if (userStore.userInfo.id === id) {
+    ElMessage({ type: 'warning', message: '不能对自己进行取消关注' })
+    return
+  }
+  const res = await unFollow({ id })
+  userStore.removeFocus(1, id)
+
+  await getUserInfo()
   ElMessage({ type: 'success', message: res.info })
 }
 // 加载用户信息结束 ////////////////////////////////////////////////////////////
@@ -184,10 +197,13 @@ onMounted(async () => {
   await getUserInfo()
   await Toggle()
   resize()
+  console.log("params: ", route.params.id)
+  console.log("my_uid: ", userStore.userInfo.id)
 })
 
 import { genFileId } from 'element-plus'
 import { updateUserInfo } from "@/apis/main";
+import router from "../../router";
 
 // 用户信息更新栏
 ////////////////////////////////////////////////////////////////
@@ -300,10 +316,10 @@ const selLike = ref(null)
 
 const doAllSent = () => {
   if (allSent.value) {
-    selSent.value = userPost.value
+    selSent.value.selectedCardIds = userPost.value.map(item => item.id)
   }
   else {
-    selSent.value = []
+    selSent.value.selectedCardIds = []
   }
   console.log("allSent: ", allSent.value)
   console.log("selSent: ", selSent.value.length)
@@ -338,10 +354,10 @@ const delSent = async () => {
 
 const doAllStar = () => {
   if (allStar.value) {
-    selStar.value = userCollect.value
+    selStar.value.selectedCardIds = userCollect.value.map(item => item.id)
   }
   else {
-    selStar.value = []
+    selStar.value.selectedCardIds = []
   }
   console.log("allStar: ", allStar.value)
   console.log("selStar: ", selStar.value.length)
@@ -411,6 +427,7 @@ const delLike = async () => {
   waterFallInit(columns, card_columns_like, arrHeight, userFavorite)
   resizeWaterFall(columns, card_columns_like, arrHeight, userFavorite)
 }
+
 </script>
 
 <template>
@@ -422,9 +439,9 @@ const delLike = async () => {
       <el-col :span="7" style="width: 250px!important;">
         <div class="container">
           <h2>{{ userInfo.user.username }}</h2>
-          <button class="updBtn" @click="openDialog" v-if="checkFollow(userInfo.user.id)">
+          <!-- <button class="updBtn" @click="openDialog" v-if="userStore.userInfo.id === route.params.id">
             <h5>编辑个人信息</h5>
-          </button>
+          </button> -->
         </div>
         <p>{{ userInfo.user.signature }}</p>
         <div class="tagArea">
@@ -433,14 +450,18 @@ const delLike = async () => {
           <el-tag class="ml-2" type="warning" round>{{ userInfo.user.postsCount }} 笔记数</el-tag>
         </div>
       </el-col>
-      <el-col :span="5" style="width: 100px;">
-        <button class="focusOn" v-if="!checkFollow(userInfo.user.id)" @click="doFocusOn(userInfo.user.id)">关注</button>
+      <el-col :span="5" style="width: 100px;" v-if="userStore.userInfo.id !== route.params.id">
+        <button class="focusOn" v-if="!checkFollow(route.params.id)" @click="doFocusOn(route.params.id)">关注</button>
+        <button class="focusOn" v-else @click="delFocusOn(route.params.id)">取消关注</button>
+      </el-col>
+      <el-col :span="5" style="width: 100px;" v-else>
+        <button class="focusOn" @click="openDialog">编辑信息</button>
       </el-col>
     </el-row>
   </div>
   <el-dialog v-model="dialogFormVisible" title="更新个人信息" center draggable>
     <div class="fileUpload">
-      <div class="fileUploadContainer" style="margin-left: 7%;">
+      <div class="fileUploadContainer" style="margin-left: 7%; margin-top: 10px;">
         <el-upload v-model:file-list="fileList" ref="upload" action="http://123.60.149.233:8000/user/avatar/" :limit="1"
           :on-exceed="handleExceed" :auto-upload="false" :on-change="handleChange" :headers="userStore.headersObj"
           :on-success="onSuccess" :on-error="onError">
@@ -483,7 +504,7 @@ const delLike = async () => {
   </div>
   <div style="margin-top: 30px;" v-if="userInfo.user">
     <div v-if="radio === '帖子'">
-      <div class="checkbox-container">
+      <div class="checkbox-container" v-if="userStore.userInfo.id === route.params.id">
         <label>
           <input type="checkbox" v-model="allSent" @change="doAllSent" />
           全选帖子
@@ -510,7 +531,7 @@ const delLike = async () => {
       </transition>
     </div>
     <div v-else-if="radio === '收藏'">
-      <div class="checkbox-container">
+      <div class="checkbox-container" v-if="userStore.userInfo.id === route.params.id">
         <label>
           <input type="checkbox" v-model="allStar" @change="doAllStar" />
           全选收藏
@@ -537,7 +558,7 @@ const delLike = async () => {
       </transition>
     </div>
     <div v-else-if="radio === '点赞'">
-      <div class="checkbox-container">
+      <div class="checkbox-container" v-if="userStore.userInfo.id === route.params.id">
         <label>
           <input type="checkbox" v-model="allLike" @change="doAllLike" />
           全选喜欢
@@ -658,7 +679,7 @@ const delLike = async () => {
   flex-direction: column;
   gap: 30px;
   position: fixed;
-  right: 10%;
+  right: 7%;
 }
 
 label {
