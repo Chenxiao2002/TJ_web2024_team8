@@ -51,6 +51,7 @@ export function waterFallMore(arrHeight, card_columns, more) {
 // 重置瀑布流的分布
 export function resizeWaterFall(columns, card_columns, arrHeight, cards) {
     var timerId = null;
+    // 全局的 window.onresize 处理程序
     window.onresize = function () {
         if (timerId) {
             clearTimeout(timerId);
