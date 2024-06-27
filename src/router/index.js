@@ -55,11 +55,11 @@ const router = createRouter({
                         title: '消息通知 .TJ论坛',
                     },
                     children: [
-                        {
-                          path: "/message",
-                          component: () => import("@/views/UserPostControl/children/message.vue"),
-                          name: "message", // 用于 keep-alive, 必须与SFC自动推导或者显示声明的组件name一致
-                        },
+                        // {
+                        //   path: "/message",
+                        //   component: () => import("@/views/UserPostControl/children/message.vue"),
+                        //   name: "message", // 用于 keep-alive, 必须与SFC自动推导或者显示声明的组件name一致
+                        // },
                         {
                           path: "/agree",
                           component: () => import("@/views/UserPostControl/children/agree.vue"),

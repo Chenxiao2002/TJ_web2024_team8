@@ -1,15 +1,15 @@
 <script setup>
-import {useRoute} from "vue-router";
-import {onMounted, ref} from "vue";
+import { useRoute } from "vue-router";
+import { onMounted, ref } from "vue";
 import HomeCard from "@/components/homeCard.vue";
 import CardDetail from "@/components/cardDetail.vue";
-import {Back} from "@element-plus/icons-vue";
-import {doFocus, queryUserIndex, queryUserPost} from "@/apis/main";
-import {controlDetail} from "@/stores/controlDetail";
-import {onClickOutside} from "@vueuse/core";
-import {resizeWaterFall, waterFallInit, waterFallMore} from "@/utils/waterFall";
-import {useUserStore} from "@/stores/user";
-import {ElMessage} from "element-plus";
+import { Back } from "@element-plus/icons-vue";
+import { doFocus, queryUserIndex, queryUserPost, controlUserCollectOrLike, postDelete } from "@/apis/main";
+import { controlDetail } from "@/stores/controlDetail";
+import { onClickOutside } from "@vueuse/core";
+import { resizeWaterFall, waterFallInit, waterFallMore } from "@/utils/waterFall";
+import { useUserStore } from "@/stores/user";
+import { ElMessage } from "element-plus";
 
 const route = useRoute()
 const Details = controlDetail()
@@ -19,7 +19,7 @@ const userStore = useUserStore()
 const userInfo = ref({})
 const getUserInfo = async () => {
   const id = route.params.id
-  const res = await queryUserIndex({id})
+  const res = await queryUserIndex({ id })
   userInfo.value = res.data
   document.title = res.data.user.username + ' .TJ论坛'
 }
@@ -31,12 +31,12 @@ const checkFollow = (id) => {
 }
 const doFocusOn = async (id) => {
   if (userStore.userInfo.id === id) {
-    ElMessage({type: 'warning', message: '不能对自己进行关注操作'})
+    ElMessage({ type: 'warning', message: '不能对自己进行关注操作' })
     return
   }
-  const res = await doFocus({id})
+  const res = await doFocus({ id })
   userStore.extendUserInfo(1, id)
-  ElMessage({type: 'success', message: res.info})
+  ElMessage({ type: 'success', message: res.info })
 }
 // 加载用户信息结束 ////////////////////////////////////////////////////////////
 
@@ -59,15 +59,15 @@ const Toggle = async () => {
   const offset = 0
   const types = radio.value
   if (radio.value === '帖子' && userPost.value.length === 0) {
-    const post = await queryUserPost({user_id, types, offset})
+    const post = await queryUserPost({ user_id, types, offset })
     userPost.value = post.info
     waterFallInit(columns, card_columns_posts, arrHeight, userPost)
   } else if (radio.value === '收藏' && userCollect.value.length === 0) {
-    const post = await queryUserPost({user_id, types, offset})
+    const post = await queryUserPost({ user_id, types, offset })
     userCollect.value = post.info
     waterFallInit(columns, card_columns_collect, arrHeight, userCollect)
   } else if (radio.value === '点赞' && userFavorite.value.length === 0) {
-    const post = await queryUserPost({user_id, types, offset})
+    const post = await queryUserPost({ user_id, types, offset })
     userFavorite.value = post.info
     waterFallInit(columns, card_columns_like, arrHeight, userFavorite)
   }
@@ -79,7 +79,7 @@ const load = async () => {
   const types = radio.value;
   if (types === '帖子') {
     const offset = userPost.value.length;
-    const post = await queryUserPost({user_id, types, offset});
+    const post = await queryUserPost({ user_id, types, offset });
     if (post.info.length === 0) {
       disabled.value = true;
     } else {
@@ -89,7 +89,7 @@ const load = async () => {
     }
   } else if (types === '点赞') {
     const offset = userFavorite.value.length;
-    const like = await queryUserPost({user_id, types, offset});
+    const like = await queryUserPost({ user_id, types, offset });
     if (like.info.length === 0) {
       disabled.value = true;
     } else {
@@ -99,7 +99,7 @@ const load = async () => {
     }
   } else if (types === '收藏') {
     const offset = userCollect.value.length;
-    const collect = await queryUserPost({user_id, types, offset});
+    const collect = await queryUserPost({ user_id, types, offset });
     if (collect.info.length === 0) {
       disabled.value = true;
     } else {
@@ -141,7 +141,7 @@ let style = null;
 const onBeforeEnter = () => {
   style = document.createElement('style')
   style.innerHTML =
-      `@keyframes scale-up-center {
+    `@keyframes scale-up-center {
           0% {
             transform: scale(0.5);
             transform-origin: ${overlayX.value}px ${overlayY.value}px;
@@ -186,8 +186,8 @@ onMounted(async () => {
   resize()
 })
 
-import {genFileId} from 'element-plus'
-import {updateUserInfo} from "@/apis/main";
+import { genFileId } from 'element-plus'
+import { updateUserInfo } from "@/apis/main";
 
 // 用户信息更新栏
 ////////////////////////////////////////////////////////////////
@@ -244,53 +244,162 @@ const openDialog = () => {
 // 表单验证规则
 const rules = {
   username: [
-    {required: true, message: '用户名不能为空！', trigger: 'blur'}
+    { required: true, message: '用户名不能为空！', trigger: 'blur' }
   ],
   signature: [
-    {required: true, message: '个性签名不能为空!', trigger: 'blur'}
+    { required: true, message: '个性签名不能为空!', trigger: 'blur' }
   ]
 }
 // 表单对象
 const formRef = ref(null)
 const doUpdate = async () => {
-  const {username, signature} = form.value;
+  const { username, signature } = form.value;
   const isModified = username !== userStore.userInfo.username || signature !== userStore.userInfo.signature;
   const isAvatarUploaded = fileList.value.length === 1;
 
   if (!isModified && !isAvatarUploaded) {
-    ElMessage({type: 'warning', message: '未作任何修改！'});
+    ElMessage({ type: 'warning', message: '未作任何修改！' });
     return;
   }
 
   if (isModified && !isAvatarUploaded) {
-    await updateUserInfo({username, signature});
+    await updateUserInfo({ username, signature });
     avatar.value = userStore.userInfo.avatar;
-    userStore.changeInfo({username, signature, avatar});
-    ElMessage({type: 'success', message: '用户信息更新成功'});
+    userStore.changeInfo({ username, signature, avatar });
+    ElMessage({ type: 'success', message: '用户信息更新成功' });
     dialogFormVisible.value = false;
     return;
   }
 
   if (!isModified && isAvatarUploaded) {
     await upload.value.submit();
-    userStore.changeInfo({username, signature, avatar});
-    ElMessage({type: 'success', message: '头像上传成功'});
+    userStore.changeInfo({ username, signature, avatar });
+    ElMessage({ type: 'success', message: '头像上传成功' });
     dialogFormVisible.value = false;
     return;
   }
 
   if (isModified && isAvatarUploaded) {
-    const res = await updateUserInfo({username, signature});
+    const res = await updateUserInfo({ username, signature });
     await upload.value.submit();
-    userStore.changeInfo({username, signature, avatar});
-    ElMessage({type: 'success', message: res.info});
+    userStore.changeInfo({ username, signature, avatar });
+    ElMessage({ type: 'success', message: res.info });
     dialogFormVisible.value = false;
   }
 };
 
-const all_sent = ref(false)
-const all_star = ref(false)
-const all_like = ref(false)
+const allSent = ref(false)
+const allStar = ref(false)
+const allLike = ref(false)
+const selSent = ref([])
+const selStar = ref([])
+const selLike = ref([])
+
+const doAllSent = () => {
+  if (allSent.value) {
+    selSent.value = userPost.value
+  }
+  else {
+    selSent.value = []
+  }
+  console.log("allSent: ", allSent.value)
+  console.log("selSent: ", selSent.value.length)
+}
+const delSent = async () => {
+  if (selSent.value.length === 0) {
+    ElMessage({ type: 'warning', message: '您尚未选中发送的帖子' })
+    return
+  }
+
+  const user_id = userInfo.value.user.id;
+
+  for (const i in selSent.value) {
+    const post_id = selSent.value[i].id
+    const res = await postDelete({
+      id: post_id,
+      user_id: user_id
+    })
+
+    ElMessage({ type: 'success', message: res.info })
+  }
+
+  allSent.value = false
+  selSent.value = []
+
+  userPost.value = []
+  waterFallInit(columns, card_columns_posts, arrHeight, userPost)
+  resizeWaterFall(columns, card_columns_posts, arrHeight, userPost)
+}
+const doAllStar = () => {
+  if (allStar.value) {
+    selStar.value = userCollect.value
+  }
+  else {
+    selStar.value = []
+  }
+  console.log("allStar: ", allStar.value)
+  console.log("selStar: ", selStar.value.length)
+}
+const delStar = async () => {
+  if (selStar.value.length === 0) {
+    ElMessage({ type: 'warning', message: '您尚未选中收藏的帖子' })
+    return
+  }
+
+  for (const i in selStar.value) {
+    const post_id = selStar.value[i].id
+    const res = await controlUserCollectOrLike({
+      post_id: post_id,
+      operator: true,
+      type: 'collect'
+    })
+
+    userStore.removeFocus(3, post_id)
+    ElMessage({ type: 'success', message: res.info })
+  }
+
+  allStar.value = false
+  selStar.value = []
+
+  userCollect.value = []
+  waterFallInit(columns, card_columns_collect, arrHeight, userCollect)
+  resizeWaterFall(columns, card_columns_collect, arrHeight, userCollect)
+}
+const doAllLike = () => {
+  if (allLike.value) {
+    selLike.value = userFavorite.value
+  }
+  else {
+    selLike.value = []
+  }
+  console.log("allLike: ", allLike.value)
+  console.log("selLike: ", selLike.value.length)
+}
+const delLike = async () => {
+  if (selLike.value.length === 0) {
+    ElMessage({ type: 'warning', message: '您尚未选中点赞的帖子' })
+    return
+  }
+
+  for (const i in selLike.value) {
+    const post_id = selLike.value[i].id
+    const res = await controlUserCollectOrLike({
+      post_id: post_id,
+      operator: true,
+      type: 'like'
+    })
+
+    userStore.removeFocus(2, post_id)
+    ElMessage({ type: 'success', message: res.info })
+  }
+
+  allLike.value = false
+  selLike.value = []
+
+  userFavorite.value = []
+  waterFallInit(columns, card_columns_like, arrHeight, userFavorite)
+  resizeWaterFall(columns, card_columns_like, arrHeight, userFavorite)
+}
 
 </script>
 
@@ -321,17 +430,9 @@ const all_like = ref(false)
   </div>
   <el-dialog v-model="dialogFormVisible" title="更新个人信息" center draggable>
     <div class="fileUpload">
-      <el-upload v-model:file-list="fileList"
-                 ref="upload"
-                 action="http://123.60.149.233:8000/user/avatar/"
-                 :limit="1"
-                 :on-exceed="handleExceed"
-                 :auto-upload="false"
-                 :on-change="handleChange"
-                 :headers="userStore.headersObj"
-                 :on-success="onSuccess"
-                 :on-error="onError"
-      >
+      <el-upload v-model:file-list="fileList" ref="upload" action="http://123.60.149.233:8000/user/avatar/" :limit="1"
+        :on-exceed="handleExceed" :auto-upload="false" :on-change="handleChange" :headers="userStore.headersObj"
+        :on-success="onSuccess" :on-error="onError">
         <template #trigger>
           <el-button class="btn" color="#2f779d" type="primary" round>选择一个文件</el-button>
         </template>
@@ -345,11 +446,10 @@ const all_like = ref(false)
     <div class="fileUpload">
       <el-form :model="form" ref="formRef" :rules="rules" label-position="top">
         <el-form-item prop="username" label="昵称" label-width="100px" style="margin: 30px;">
-          <el-input v-model="form.username" maxlength="6"
-                    show-word-limit class="my"/>
+          <el-input v-model="form.username" maxlength="6" show-word-limit class="my" />
         </el-form-item>
         <el-form-item prop="signature" label="个性签名" label-width="100px" style="margin: 30px;">
-          <el-input v-model="form.signature" class="my"/>
+          <el-input v-model="form.signature" class="my" />
         </el-form-item>
       </el-form>
     </div>
@@ -363,111 +463,93 @@ const all_like = ref(false)
     </template>
   </el-dialog>
   <div class="checkBox" @change="Toggle">
-    <el-radio-group fill="#2f779d"  v-model="radio" size="large">
-      <el-radio-button fill="#2f779d" class="radio" label="帖子" name="post"/>
-      <el-radio-button fill="#2f779d" class="radio" label="收藏" name="collect"/>
-      <el-radio-button fill="#2f779d" class="radio" label="点赞" name="like"/>
+    <el-radio-group fill="#2f779d" v-model="radio" size="large">
+      <el-radio-button fill="#2f779d" class="radio" label="帖子" name="post" />
+      <el-radio-button fill="#2f779d" class="radio" label="收藏" name="collect" />
+      <el-radio-button fill="#2f779d" class="radio" label="点赞" name="like" />
     </el-radio-group>
   </div>
   <div style="margin-top: 30px;" v-if="userInfo.user">
     <div v-if="radio === '帖子'">
-      <div v-if="userPost.length === 0">
-        <el-empty description="现在还没有帖子..."/>
-      </div>
-      <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-delay="200"
-           :infinite-scroll-distance="100"
-           v-else>
-        <home-card :card_columns="card_columns_posts" @show-detail="showMessage"></home-card>
-      </div>
-      <transition
-          name="fade"
-          @before-enter="onBeforeEnter"
-          @after-enter="onAfterEnter"
-          @before-leave="onBeforeLeave"
-          @after-leave="onAfterLeave"
-      >
-        <div class="overlay" v-if="show">
-          <button style="display:none;" class="backPage" @click="close">
-            <el-icon>
-              <Back/>
-            </el-icon>
-          </button>
-          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay"/>
-        </div>
-      </transition>
       <div class="checkbox-container">
         <label>
-          <input type="checkbox" v-model="all_sent" />
+          <input type="checkbox" v-model="allSent" @change="doAllSent" />
           全选帖子
         </label>
-        <button class="delBtn">删除所选帖子</button>
+        <button class="delBtn" @click="delSent">删除所选帖子</button>
       </div>
+      <div v-if="userPost.length === 0">
+        <el-empty description="现在还没有帖子..." />
+      </div>
+      <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-delay="200"
+        :infinite-scroll-distance="100" v-else>
+        <home-card :card_columns="card_columns_posts" @show-detail="showMessage"></home-card>
+      </div>
+      <transition name="fade" @before-enter="onBeforeEnter" @after-enter="onAfterEnter" @before-leave="onBeforeLeave"
+        @after-leave="onAfterLeave">
+        <div class="overlay" v-if="show">
+          <button style="display:none;" class="backPage" @click="close">
+            <el-icon>
+              <Back />
+            </el-icon>
+          </button>
+          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay" />
+        </div>
+      </transition>
     </div>
     <div v-else-if="radio === '收藏'">
-      <div v-if="userCollect.length === 0">
-        <el-empty description="现在还没有收藏..."/>
-      </div>
-      <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-delay="200"
-           :infinite-scroll-distance="100"
-           v-else>
-        <home-card :card_columns="card_columns_collect" ref="overlay" @show-detail="showMessage"></home-card>
-      </div>
-      <transition
-          name="fade"
-          @before-enter="onBeforeEnter"
-          @after-enter="onAfterEnter"
-          @before-leave="onBeforeLeave"
-          @after-leave="onAfterLeave"
-      >
-        <div class="overlay" v-if="show">
-          <button style="display:none;" class="backPage" @click="close">
-            <el-icon>
-              <Back/>
-            </el-icon>
-          </button>
-          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay"/>
-        </div>
-      </transition>
       <div class="checkbox-container">
         <label>
-          <input type="checkbox" v-model="all_star" />
+          <input type="checkbox" v-model="allStar" @change="doAllStar" />
           全选收藏
         </label>
-        <button class="delBtn">取消所选收藏</button>
+        <button class="delBtn" @click="delStar">取消所选收藏</button>
       </div>
-    </div>
-    <div v-else-if="radio === '点赞'">
-      <div v-if="userFavorite.length === 0">
-        <el-empty description="现在还没有点赞..."/>
+      <div v-if="userCollect.length === 0">
+        <el-empty description="现在还没有收藏..." />
       </div>
       <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-delay="200"
-           :infinite-scroll-distance="100"
-           v-else>
-        <home-card :card_columns="card_columns_like" @show-detail="showMessage"></home-card>
+        :infinite-scroll-distance="100" v-else>
+        <home-card :card_columns="card_columns_collect" ref="overlay" @show-detail="showMessage"></home-card>
       </div>
-      <transition
-          name="fade"
-          @before-enter="onBeforeEnter"
-          @after-enter="onAfterEnter"
-          @before-leave="onBeforeLeave"
-          @after-leave="onAfterLeave"
-      >
+      <transition name="fade" @before-enter="onBeforeEnter" @after-enter="onAfterEnter" @before-leave="onBeforeLeave"
+        @after-leave="onAfterLeave">
         <div class="overlay" v-if="show">
           <button style="display:none;" class="backPage" @click="close">
             <el-icon>
-              <Back/>
+              <Back />
             </el-icon>
           </button>
-          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay"/>
+          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay" />
         </div>
       </transition>
+    </div>
+    <div v-else-if="radio === '点赞'">
       <div class="checkbox-container">
         <label>
-          <input type="checkbox" v-model="all_like" />
+          <input type="checkbox" v-model="allLike" @change="doAllLike" />
           全选喜欢
         </label>
-        <button class="delBtn">取消所选点赞</button>
+        <button class="delBtn" @click="delLike">取消所选点赞</button>
       </div>
+      <div v-if="userFavorite.length === 0">
+        <el-empty description="现在还没有点赞..." />
+      </div>
+      <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-delay="200"
+        :infinite-scroll-distance="100" v-else>
+        <home-card :card_columns="card_columns_like" @show-detail="showMessage"></home-card>
+      </div>
+      <transition name="fade" @before-enter="onBeforeEnter" @after-enter="onAfterEnter" @before-leave="onBeforeLeave"
+        @after-leave="onAfterLeave">
+        <div class="overlay" v-if="show">
+          <button style="display:none;" class="backPage" @click="close">
+            <el-icon>
+              <Back />
+            </el-icon>
+          </button>
+          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay" />
+        </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -514,7 +596,7 @@ const all_like = ref(false)
   left: 40%;
 }
 
-.radio + .radio {
+.radio+.radio {
   margin-left: 30px;
 }
 
