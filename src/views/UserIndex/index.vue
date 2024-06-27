@@ -24,8 +24,11 @@ const getUserInfo = async () => {
   document.title = res.data.user.username + ' .TJ论坛'
 }
 const checkFollow = (id) => {
+  return userStore.userFocus.includes(id)
+}
+const checkMine = (id) => {
   if (userStore.userInfo.id === id) {
-    return true
+    return true;
   }
   return userStore.userFocus.includes(id)
 }
@@ -308,7 +311,7 @@ const all_like = ref(false)
       <el-col :span="7" style="width: 250px!important;">
         <div class="container">
           <h2>{{ userInfo.user.username }}</h2>
-          <button class="updBtn" @click="openDialog" v-if="checkFollow(userInfo.user.id)">
+          <button class="updBtn" @click="openDialog" v-if="checkMine(userInfo.user.id)">
             <h5>编辑个人信息</h5>
           </button>
         </div>
@@ -319,10 +322,10 @@ const all_like = ref(false)
           <el-tag class="ml-2" type="warning" round>{{ userInfo.user.postsCount }} 笔记数</el-tag>
         </div>
       </el-col>
-      <el-col :span="5" style="width: 100px;">
-        <button @click="cancelFocusOn(detail.user.id)" class="focusOn" v-if="checkFollow(detail.user.id)">已关注
+      <el-col :span="5" style="width: 100px;" v-if="!checkMine(userInfo.user.id)">
+        <button @click="cancelFocusOn(detail.user.id)" class="focusOn" v-if="checkFollow(userInfo.user.id)">已关注
         </button>
-        <button class="focusOn" v-if="!checkFollow(userInfo.user.id)" @click="doFocusOn(userInfo.user.id)">关注</button>
+        <button class="focusOn" v-else @click="doFocusOn(userInfo.user.id)">关注</button>
       </el-col>
     </el-row>
   </div>
