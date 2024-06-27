@@ -242,14 +242,18 @@ const handleClick = async (tab) => {
   position: fixed;
   top: 5%;
   left: 3%;
+  display: flex;
   justify-content: center;
   align-items: center;
   width: 40px;
   height: 40px;
-  border-radius: 40px;
+  border-radius: 50%;
   border: 1px solid var(--color-border);
   cursor: pointer;
   transition: all .3s;
+  background-color: #2f779d;
+  color: #ffffff;
+  font-size: 20px; /* 调整图标大小 */
 }
 
 .fade-enter-active {

@@ -330,7 +330,8 @@ onMounted(() => load())
 
 .banner {
   width: 600px;
-  border-radius: 0.8rem;
+  border-radius: 0.8rem 0 0 0.8rem;
+  background-color: #f7f7f7;
 }
 
 .username {
@@ -339,12 +340,13 @@ onMounted(() => load())
 
 .focusOn {
   position: absolute;
+  width: 90px;
   right: 10px;
   padding: 0.6rem 0.8rem;
   color: white;
   background-color: #2f779d;
   border: 0;
-  border-radius: 0.8rem;
+  border-radius: 20px;
 }
 
 .focusOn:hover {
@@ -355,7 +357,7 @@ onMounted(() => load())
   width: 600px;
   height: 620px;
   border-radius: 0.8rem 0 0 0.8rem;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .main-content::-webkit-scrollbar {

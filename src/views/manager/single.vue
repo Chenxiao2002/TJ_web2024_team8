@@ -247,7 +247,7 @@ const close = () => {
   border: 1px solid var(--color-border);
   cursor: pointer;  
   /* 鼠标指针将变成手型（通常是一个指向的手指），这通常用于指示元素是可点击的。 */
-  background-color: #8db4ca;
+  background-color: #2f779d;
   color: #ffffff;
   font-size: 20px; /* 调整图标大小 */
 }
