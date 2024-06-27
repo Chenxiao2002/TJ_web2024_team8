@@ -1,12 +1,12 @@
 <template>
   <div ref="loadingContainer" class="collection-container">
     <div v-if="followers.length === 0 && !loading">
-      <el-empty description="现在还没有点赞消息..." />
+      <el-empty description="现在还没有新增关注消息..." />
     </div>
     <div v-else>
       <ul class="agree-container">
         <li class="agree-item" v-for="follower in followers" :key="follower.createTime">
-          <a class="user-avatar">
+          <a class="user-avatar" :href="`/user/index/${follower.id}`">
             <img class="avatar-item" :src="follower.avatar" />
           </a>
           <div class="main">
@@ -19,7 +19,7 @@
             </div>
             <div class="extra">
               <button class="reds-button-new follow-button large"
-                :class="{ 'primary': !follower.back, 'mutual': follower.back }" @click="toggleFollow(follower.id)">
+                :class="{ 'primary': !follower.back, 'mutual': follower.back }" @click="toggleFollow(follower)">
                 <span class="reds-button-new-box"><span class="reds-button-new-text">{{ follower.back ? '互相关注' : '回关'
                     }}</span></span>
               </button>
@@ -79,15 +79,17 @@ const fetchFollowers = async () => {
 };
 
 const toggleFollow = async (follower: Follower) => {
+  console.log(follower);
+  const id=follower.id;
   try {
     if (follower.back) {
-      const res = await unFollow(follower.id);
-      userStore.removeFocus(1, follower.id);
+      const res = await unFollow({id});
+      userStore.removeFocus(1, id);
       ElMessage({ type: 'success', message: res.info });
       follower.back = false;
     } else {
-      const res = await doFocus(follower.id);
-      userStore.extendUserInfo(1, follower.id);
+      const res = await doFocus({id});
+      userStore.extendUserInfo(1, id);
       ElMessage({ type: 'success', message: res.info });
       follower.back = true;
     }

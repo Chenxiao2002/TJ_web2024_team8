@@ -82,6 +82,8 @@ const showMessage = async (id, left, top) => {
   window.history.pushState({}, "", `/explore/${id}`);
   overlayX.value = left;
   overlayY.value = top;
+  console.log(overlayX);
+  console.log(overlayY);
   await getDetails(id);
   show.value = true;
 };

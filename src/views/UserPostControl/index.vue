@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="header">
+    <div class="header" v-show="$route.meta.showfater">
       <div class="reds-sticky">
         <div class="reds-tabs-list">
           <div :class="['reds-tab-item', 'tab-item', { active: activeTab === 'comment' }]" @click="toComment">
@@ -40,22 +40,22 @@ const route = useRoute();
 const activeTab = ref('comment');
 
 const toComment = () => {
-  router.push({ path: '/comment' });
+  router.push({ path: 'comment' });
   activeTab.value = 'comment';
 };
 
 const toAgree = () => {
-  router.push({ path: '/agree' });
+  router.push({ name: 'agree' });
   activeTab.value = 'agree';
 };
 
 const toCollection = () => {
-  router.push({ path: '/collection' });
+  router.push({ name: 'collection' });
   activeTab.value = 'collection';
 };
 
 const toFollower = () => {
-  router.push({ path: '/follower' });
+  router.push({ name: 'follower' });
   activeTab.value = 'follower';
 };
 
@@ -71,7 +71,7 @@ onMounted(() => {
   } else if (path.includes('follower')) {
     activeTab.value = 'follower';
   } else {
-    router.push({ path: '/comment' });
+    router.push({ name: 'comment' });
   }
 });
 </script>
@@ -87,7 +87,7 @@ onMounted(() => {
   .reds-sticky {
     top: 72px;
     position: fixed;
-    z-index: 10010;
+    z-index: 1;
     width: 40rem;
     box-sizing: border-box;
     height: 72px;

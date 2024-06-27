@@ -27,6 +27,22 @@
           </div>
         </li>
       </ul>
+      <transition
+          name="fade"
+          @before-enter="onBeforeEnter"
+          @after-enter="onAfterEnter"
+          @before-leave="onBeforeLeave"
+          @after-leave="onAfterLeave"
+      >
+        <div class="overlay" v-if="show">
+          <button style="display:none;" class="backPage" @click="close">
+            <el-icon>
+              <Back/>
+            </el-icon>
+          </button>
+          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay"/>
+        </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -39,13 +55,20 @@ import { useRouter, useRoute } from 'vue-router';
 import { getCollectInfo } from '@/apis/main';
 import { ElLoading } from 'element-plus';
 import 'element-plus/theme-chalk/el-loading.css';
+import {controlDetail} from "@/stores/controlDetail";
+import {onClickOutside} from "@vueuse/core";
+import {Back} from "@element-plus/icons-vue";
+import {useUserStore} from "@/stores/user";
 
+const Details = controlDetail()
 const route = useRoute();
-const router = useRouter();
 const messages = ref([]);
 const loading = ref(false);
 const loadingContainer = ref(null);
 let loadingInstance: any = null;
+const userStore = useUserStore();
+const userInfo = userStore.userInfo;
+
 
 const fetchMessages = async () => {
   const user_id = route.params.id;
@@ -69,17 +92,77 @@ const fetchMessages = async () => {
   }
 };
 
-const goToDetail = (postId: string) => {
-  router.push(`/explore/${postId}`);
+// 卡片详情页的内容 //////////////////////////////////////////////////////////
+const detail = Details.detail
+const overlayX = ref(0); // 覆盖层的水平位置
+const overlayY = ref(0); // 覆盖层的垂直位置
+const overlay = ref(null)
+const show = ref(false)
+
+const getDetails = async (id) => Details.getDetail(id)
+const goToDetail = async(id: string) => {
+  window.history.pushState({}, "", `/explore/${id}`);
+  const target = event.target;
+  overlayX.value = target.x;
+  overlayY.value = target.y;
+  await getDetails(id);
+  show.value = true;
 };
+const afterDoComment = (comment) => Details.afterDoComment(comment)
+const close = () => {
+  window.history.pushState({}, "", "/user/control/collection");
+  document.title = userInfo.username + '-消息通知'
+  show.value = false
+}
+onClickOutside(overlay, () => {
+  window.history.pushState({}, "", "/user/control/collection");
+  document.title = userInfo.username + '-消息通知'
+  show.value = false;
+});
+let style = null;
+const onBeforeEnter = () => {
+  style = document.createElement('style')
+  style.innerHTML =
+      `@keyframes scale-up-center {
+          0% {
+            transform: scale(0.5);
+            transform-origin: ${overlayX.value}px ${overlayY.value}px;
+          }
+          100% {
+            transform: scale(1);
+          }
+       }`
+  document.head.appendChild(style);
+}
+
+const onAfterEnter = (el) => {
+  el.style = 'background-color: #fff'
+  const button = el.querySelector('.backPage')
+  button.style.display = ''
+}
+const onBeforeLeave = (el) => {
+  const button = el.querySelector('.backPage')
+  button.style.display = 'none'
+  el.style = 'background-color: transparent'
+}
+
+const onAfterLeave = () => {
+  if (style) {
+    document.head.removeChild(style);
+    style = null;
+  }
+}
+// 卡片详情页的内容结束 //////////////////////////////////////////////////////////
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   return date.toLocaleDateString();
 };
 
-onMounted(() => {
-  fetchMessages();
+onMounted(async () => {
+  // await getUserInfo()
+  await fetchMessages()
+
 });
 </script>
 
@@ -93,7 +176,28 @@ textarea {
   width: 100%;
   height: 100%;
 }
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+}
 
+.backPage {
+  position: fixed;
+  top: 5%;
+  left: 3%;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 40px;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: all .3s;
+}
 .agree-container {
   width: 40rem;
 

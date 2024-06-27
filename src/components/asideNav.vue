@@ -2,29 +2,29 @@
 import {ref} from "vue";
 import {Promotion, Expand, Close, Tools, Bell} from "@element-plus/icons-vue";
 import {useUserStore} from "@/stores/user";
-import Login from '@/views/Login/index.vue'
+import Login from '@/views/Login/index.vue';
 import {ElMessage} from "element-plus";
-import {genFileId} from 'element-plus'
-import {updateUserInfo} from "@/apis/main";
 import router from "@/router";
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 // 控制菜单样式
-const isMenuOpen = ref(false)
+const isMenuOpen = ref(false);
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
-}
+};
+
 // 登出
 const confirm = async () => {
-  const res = await userStore.userLogout()
-  ElMessage({type: 'success', message: res.info})
-  router.push({path:'/'}) //登出后跳到“发现”主页
-}
+  const res = await userStore.userLogout();
+  ElMessage({type: 'success', message: res.info});
+  router.push({path: '/'}); //登出后跳到“发现”主页
+};
+
 // 显示登录界面
-const show = ref(false)
+const show = ref(false);
 const changeShow = () => {
   show.value = !show.value;
-}
+};
 </script>
 
 <template>
@@ -71,12 +71,14 @@ const changeShow = () => {
           </RouterLink>
         </el-tooltip>
       </li>
-      <li class="menuItem" v-if="userStore.userInfo.id && userStore.userInfo.status == 0">
+      <li class="menuItem" v-if="userStore.userInfo.id && userStore.userInfo.status === 0">
         <el-tooltip effect="dark" content="用户管理" placement="right">
-          <RouterLink to="/user/control">
+          <RouterLink to="/manager">
             <div class="menuOption">
-               <i class="iconfont icon-tongzhi"></i>
-              <h5 class="menuText" :class="{ open2: isMenuOpen }">通知</h5>
+              <el-icon size="x-large">
+                <Tools/>
+              </el-icon>
+              <h5 class="menuText" :class="{ open2: isMenuOpen }">用户管理</h5>
             </div>
           </RouterLink>
         </el-tooltip>
@@ -91,7 +93,8 @@ const changeShow = () => {
             <img :src="userStore.userInfo.avatar" alt="">
           </div>
           <h5 class="Username menuText" :class="{ open2: isMenuOpen }" v-show="isMenuOpen">
-            {{ userStore.userInfo.username }}</h5>
+            {{ userStore.userInfo.username }}
+          </h5>
           <p class="menuText" :class="{ open2: isMenuOpen }"><i class="iconfont icon-youjiantou"></i></p>
         </RouterLink>
       </div>
@@ -102,7 +105,7 @@ const changeShow = () => {
             <el-popconfirm @confirm="confirm" title="确认退出吗?" confirm-button-text="确认"
                            cancel-button-text="取消">
               <template #reference>
-                <button type="button" ><i class="iconfont icon-tuichu"></i></button>
+                <button type="button"><i class="iconfont icon-tuichu"></i></button>
               </template>
             </el-popconfirm>
           </div>
@@ -133,9 +136,8 @@ const changeShow = () => {
     <login @changeShow="changeShow" class="login"/>
   </div>
 </div>
-  
-
 </template>
+
 
 <style scoped>
 
