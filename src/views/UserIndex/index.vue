@@ -323,7 +323,7 @@ const all_like = ref(false)
         </div>
       </el-col>
       <el-col :span="5" style="width: 100px;" v-if="!checkMine(userInfo.user.id)">
-        <button @click="cancelFocusOn(detail.user.id)" class="focusOn" v-if="checkFollow(userInfo.user.id)">已关注
+        <button @click="cancelFocusOn(userInfo.user.id)" class="focusOn" v-if="checkFollow(userInfo.user.id)">已关注
         </button>
         <button class="focusOn" v-else @click="doFocusOn(userInfo.user.id)">关注</button>
       </el-col>
