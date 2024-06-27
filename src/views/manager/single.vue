@@ -22,18 +22,18 @@ const loading = ref(true)
 const value = ref('posts')
 const options = [
   {
-    label: '帖子管理',
+    label: '帖子详情',
     options: [
-      { value: 'posts', label: '个人帖子管理' },
-      { value: 'collected', label: '收藏帖子管理' },
-      { value: 'favorites', label: '喜欢帖子管理' }
+      { value: 'posts', label: '个人帖子详情' },
+      { value: 'collected', label: '收藏帖子详情' },
+      { value: 'favorites', label: '喜欢帖子详情' }
     ],
   },
   {
-    label: '个人用户管理',
+    label: '个人用户详情',
     options: [
-      { value: 'fans', label: '粉丝管理' },
-      { value: 'follow', label: '关注管理' },
+      { value: 'fans', label: '粉丝详情' },
+      { value: 'follow', label: '关注详情' },
     ],
   },
 ]
@@ -134,31 +134,32 @@ const close = () => {
 
 <template>
   <el-config-provider :locale="locale">
-
-    <button class="backPage" @click="close">
-      <el-icon>
-        <Back/>
-      </el-icon>
-    </button>
-    <el-select
-        v-model="value"
-        placeholder="Select"
-        @change="changeShow"
-        style="margin-bottom: 20px"
-    >
-      <el-option-group
-          v-for="group in options"
-          :key="group.label"
-          :label="group.label"
+    <div class="head">
+      <button class="backPage" @click="close">
+        <el-icon>
+          <Back/>
+        </el-icon>
+      </button>
+      <el-select
+          v-model="value"
+          placeholder="Select"
+          @change="changeShow"
+          style="width:50%;"
       >
-        <el-option
-            v-for="item in group.options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-        />
-      </el-option-group>
-    </el-select>
+        <el-option-group
+            v-for="group in options"
+            :key="group.label"
+            :label="group.label"
+        >
+          <el-option
+              v-for="item in group.options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-option-group>
+      </el-select>
+    </div>
     <div style="display:flex;align-items: center;flex-direction: column" v-if="type === 1">
       <el-table
           :data="tableData"
@@ -229,11 +230,14 @@ const close = () => {
 .pageArea {
   margin-top: 20px;
 }
-
+.head{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* 设置按钮和选择框之间的间隔 */
+  margin-bottom: 20px;
+}
 .backPage {
-  position: fixed;
-  top: 97px;
-  left: 76px;
   display: flex;
   justify-content: center;
   align-items: center;
