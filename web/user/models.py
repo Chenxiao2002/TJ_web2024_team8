@@ -43,7 +43,7 @@ class Collects(models.Model):
 class Image(models.Model):
     _id = models.ObjectIdField()
     pid = models.CharField(max_length=24, verbose_name='帖子ID', null=False)
-    imagePath = models.CharField(max_length=256, verbose_name='帖子图片')
+    imagePath = models.ImageField(max_length=256, verbose_name='帖子图片')
     height = models.IntegerField(default=0, verbose_name='图片高度')
     width = models.IntegerField(default=0, verbose_name='图片宽度')
     class Meta:

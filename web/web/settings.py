@@ -232,3 +232,5 @@ DJONGO_TABLE_SUFFIX = ''
 
 # SYSTEM_PATH = 'E:\web_tech\TJ_web2024_team8\web\static\img'
 SYSTEM_PATH = 'D:\\tongji\\backend\\web\\static\\img'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -11,3 +11,5 @@ class Comment(models.Model):
     parent_cid = models.CharField(max_length=24, verbose_name='上级评论ID', null=False)
     class Meta:
         db_table = 'Comment'
+
+    
