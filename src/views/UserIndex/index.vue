@@ -1,15 +1,20 @@
 <script setup>
-import {useRoute} from "vue-router";
-import {onMounted, ref} from "vue";
-import HomeCard from "@/components/homeCard.vue";
+import { useRoute } from "vue-router";
+import { onMounted, ref } from "vue";
+import HomeCardAdv from "@/components/homeCardAdv.vue"
 import CardDetail from "@/components/cardDetail.vue";
-import {Back} from "@element-plus/icons-vue";
-import {doFocus, queryUserIndex, queryUserPost,unFollow} from "@/apis/main";
-import {controlDetail} from "@/stores/controlDetail";
-import {onClickOutside} from "@vueuse/core";
-import {resizeWaterFall, waterFallInit, waterFallMore} from "@/utils/waterFall";
-import {useUserStore} from "@/stores/user";
-import {ElMessage} from "element-plus";
+
+import { Back } from "@element-plus/icons-vue";
+import {
+  doFocus, unFollow, queryUserIndex, queryUserPost, controlUserCollectOrLike, postDelete,
+  getFocusInfo, getFollowsInfo
+} from "@/apis/main";
+import { controlDetail } from "@/stores/controlDetail";
+import { onClickOutside } from "@vueuse/core";
+import { resizeWaterFall, waterFallInit, waterFallMore } from "@/utils/waterFall";
+import { useUserStore } from "@/stores/user";
+import { ElMessage } from "element-plus";
+
 
 const route = useRoute()
 const Details = controlDetail()
@@ -19,7 +24,7 @@ const userStore = useUserStore()
 const userInfo = ref({})
 const getUserInfo = async () => {
   const id = route.params.id
-  const res = await queryUserIndex({id})
+  const res = await queryUserIndex({ id })
   userInfo.value = res.data
   document.title = res.data.user.username + ' .TJ论坛'
 }
@@ -28,18 +33,33 @@ const checkFollow = (id) => {
 }
 const checkMine = (id) => {
   if (userStore.userInfo.id === id) {
-    return true;
+
+    return false
+
   }
   return false;
 }
 const doFocusOn = async (id) => {
   if (userStore.userInfo.id === id) {
-    ElMessage({type: 'warning', message: '不能对自己进行关注操作'})
+    ElMessage({ type: 'warning', message: '不能对自己进行关注操作' })
     return
   }
-  const res = await doFocus({id})
+  const res = await doFocus({ id })
   userStore.extendUserInfo(1, id)
-  ElMessage({type: 'success', message: res.info})
+
+  await getUserInfo()
+  ElMessage({ type: 'success', message: res.info })
+}
+const delFocusOn = async (id) => {
+  if (userStore.userInfo.id === id) {
+    ElMessage({ type: 'warning', message: '不能对自己进行取消关注' })
+    return
+  }
+  const res = await unFollow({ id })
+  userStore.removeFocus(1, id)
+
+  await getUserInfo()
+  ElMessage({ type: 'success', message: res.info })
 }
 const cancelFocusOn = async (id) => {
   const res = await unFollow({ id })
@@ -67,15 +87,15 @@ const Toggle = async () => {
   const offset = 0
   const types = radio.value
   if (radio.value === '帖子' && userPost.value.length === 0) {
-    const post = await queryUserPost({user_id, types, offset})
+    const post = await queryUserPost({ user_id, types, offset })
     userPost.value = post.info
     waterFallInit(columns, card_columns_posts, arrHeight, userPost)
   } else if (radio.value === '收藏' && userCollect.value.length === 0) {
-    const post = await queryUserPost({user_id, types, offset})
+    const post = await queryUserPost({ user_id, types, offset })
     userCollect.value = post.info
     waterFallInit(columns, card_columns_collect, arrHeight, userCollect)
   } else if (radio.value === '点赞' && userFavorite.value.length === 0) {
-    const post = await queryUserPost({user_id, types, offset})
+    const post = await queryUserPost({ user_id, types, offset })
     userFavorite.value = post.info
     waterFallInit(columns, card_columns_like, arrHeight, userFavorite)
   }
@@ -87,7 +107,7 @@ const load = async () => {
   const types = radio.value;
   if (types === '帖子') {
     const offset = userPost.value.length;
-    const post = await queryUserPost({user_id, types, offset});
+    const post = await queryUserPost({ user_id, types, offset });
     if (post.info.length === 0) {
       disabled.value = true;
     } else {
@@ -97,7 +117,7 @@ const load = async () => {
     }
   } else if (types === '点赞') {
     const offset = userFavorite.value.length;
-    const like = await queryUserPost({user_id, types, offset});
+    const like = await queryUserPost({ user_id, types, offset });
     if (like.info.length === 0) {
       disabled.value = true;
     } else {
@@ -107,7 +127,7 @@ const load = async () => {
     }
   } else if (types === '收藏') {
     const offset = userCollect.value.length;
-    const collect = await queryUserPost({user_id, types, offset});
+    const collect = await queryUserPost({ user_id, types, offset });
     if (collect.info.length === 0) {
       disabled.value = true;
     } else {
@@ -149,7 +169,7 @@ let style = null;
 const onBeforeEnter = () => {
   style = document.createElement('style')
   style.innerHTML =
-      `@keyframes scale-up-center {
+    `@keyframes scale-up-center {
           0% {
             transform: scale(0.5);
             transform-origin: ${overlayX.value}px ${overlayY.value}px;
@@ -192,10 +212,15 @@ onMounted(async () => {
   await getUserInfo()
   await Toggle()
   resize()
+  // console.log("params: ", route.params.id)
+  // console.log("my_uid: ", userStore.userInfo.id)
+  // console.log("userStore: ")
+  // console.log(userStore)
 })
 
-import {genFileId} from 'element-plus'
-import {updateUserInfo} from "@/apis/main";
+import { genFileId } from 'element-plus'
+import { updateUserInfo } from "@/apis/main";
+import router from "../../router";
 
 // 用户信息更新栏
 ////////////////////////////////////////////////////////////////
@@ -252,54 +277,234 @@ const openDialog = () => {
 // 表单验证规则
 const rules = {
   username: [
-    {required: true, message: '用户名不能为空！', trigger: 'blur'}
+    { required: true, message: '用户名不能为空！', trigger: 'blur' }
   ],
   signature: [
-    {required: true, message: '个性签名不能为空!', trigger: 'blur'}
+    { required: true, message: '个性签名不能为空!', trigger: 'blur' }
   ]
 }
 // 表单对象
 const formRef = ref(null)
 const doUpdate = async () => {
-  const {username, signature} = form.value;
+  const { username, signature } = form.value;
   const isModified = username !== userStore.userInfo.username || signature !== userStore.userInfo.signature;
   const isAvatarUploaded = fileList.value.length === 1;
 
   if (!isModified && !isAvatarUploaded) {
-    ElMessage({type: 'warning', message: '未作任何修改！'});
+    ElMessage({ type: 'warning', message: '未作任何修改！' });
     return;
   }
 
   if (isModified && !isAvatarUploaded) {
-    await updateUserInfo({username, signature});
+    await updateUserInfo({ username, signature });
     avatar.value = userStore.userInfo.avatar;
-    userStore.changeInfo({username, signature, avatar});
-    ElMessage({type: 'success', message: '用户信息更新成功'});
+    userStore.changeInfo({ username, signature, avatar });
+    ElMessage({ type: 'success', message: '用户信息更新成功' });
     dialogFormVisible.value = false;
+    await getUserInfo()
     return;
   }
 
   if (!isModified && isAvatarUploaded) {
     await upload.value.submit();
-    userStore.changeInfo({username, signature, avatar});
-    ElMessage({type: 'success', message: '头像上传成功'});
+    userStore.changeInfo({ username, signature, avatar });
+    ElMessage({ type: 'success', message: '头像上传成功' });
     dialogFormVisible.value = false;
+    await getUserInfo()
     return;
   }
 
   if (isModified && isAvatarUploaded) {
-    const res = await updateUserInfo({username, signature});
+    const res = await updateUserInfo({ username, signature });
     await upload.value.submit();
-    userStore.changeInfo({username, signature, avatar});
-    ElMessage({type: 'success', message: res.info});
+    userStore.changeInfo({ username, signature, avatar });
+    ElMessage({ type: 'success', message: res.info });
     dialogFormVisible.value = false;
+    await getUserInfo()
   }
 };
 
-const all_sent = ref(false)
-const all_star = ref(false)
-const all_like = ref(false)
+const allSent = ref(false)
+const allStar = ref(false)
+const allLike = ref(false)
+const selSent = ref(null)
+const selStar = ref(null)
+const selLike = ref(null)
 
+const doAllSent = () => {
+  if (!selSent.value) {
+    return
+  }
+  if (allSent.value) {
+    selSent.value.selectedCardIds = userPost.value.map(item => item.id)
+  }
+  else {
+    selSent.value.selectedCardIds = []
+  }
+  // console.log("allSent: ", allSent.value)
+  // console.log("selSent: ", selSent.value.length)
+}
+const delSent = async () => {
+  if (!selSent.value) {
+    return
+  }
+  // console.log("sent: ", selSent.value.selectedCardIds)
+  if (selSent.value.selectedCardIds.length === 0) {
+    ElMessage({ type: 'warning', message: '您尚未选中发送的帖子' })
+    return
+  }
+
+  const user_id = userInfo.value.user.id;
+
+  for (const i in selSent.value.selectedCardIds) {
+    const post_id = selSent.value.selectedCardIds[i]
+    const res = await postDelete({
+      id: post_id,
+      user_id: user_id
+    })
+
+    ElMessage({ type: 'success', message: '成功删除帖子' })
+  }
+
+  userPost.value = userPost.value.filter(item => !selSent.value.selectedCardIds.includes(item.id))
+
+  allSent.value = false
+  selSent.value.selectedCardIds = []
+
+  waterFallInit(columns, card_columns_posts, arrHeight, userPost)
+  resizeWaterFall(columns, card_columns_posts, arrHeight, userPost)
+}
+
+const doAllStar = () => {
+  if (!selStar.value) {
+    return
+  }
+  if (allStar.value) {
+    selStar.value.selectedCardIds = userCollect.value.map(item => item.id)
+  }
+  else {
+    selStar.value.selectedCardIds = []
+  }
+  // console.log("allStar: ", allStar.value)
+  // console.log("selStar: ", selStar.value.length)
+}
+const delStar = async () => {
+  if (!selStar.value) {
+    return
+  }
+  // console.log("star: ", selStar.value.selectedCardIds)
+  if (selStar.value.selectedCardIds.length === 0) {
+    ElMessage({ type: 'warning', message: '您尚未选中收藏的帖子' })
+    return
+  }
+
+  for (const i in selStar.value.selectedCardIds) {
+    const post_id = selStar.value.selectedCardIds[i]
+    const res = await controlUserCollectOrLike({
+      post_id: post_id,
+      operator: true,
+      type: 'collect'
+    })
+
+    userStore.removeFocus(3, post_id)
+    ElMessage({ type: 'success', message: res.info })
+  }
+
+  userCollect.value = userCollect.value.filter(item => !selStar.value.selectedCardIds.includes(item.id))
+
+  allStar.value = false
+  selStar.value.selectedCardIds = []
+
+  waterFallInit(columns, card_columns_collect, arrHeight, userCollect)
+  resizeWaterFall(columns, card_columns_collect, arrHeight, userCollect)
+}
+
+const doAllLike = () => {
+  if (!selLike.value) {
+    return
+  }
+  if (allLike.value) {
+    selLike.value.selectedCardIds = userFavorite.value.map(item => item.id)
+  }
+  else {
+    selLike.value.selectedCardIds = []
+  }
+  // console.log("allLike: ", allLike.value)
+  // console.log("selLike: ", selLike.value.selectedCardIds.length)
+}
+const delLike = async () => {
+  if (!selLike.value) {
+    return
+  }
+  // console.log("like: ", selLike.value.selectedCardIds)
+  if (selLike.value.selectedCardIds.length === 0) {
+    ElMessage({ type: 'warning', message: '您尚未选中点赞的帖子' })
+    return
+  }
+
+  for (const i in selLike.value.selectedCardIds) {
+    const post_id = selLike.value.selectedCardIds[i]
+    const res = await controlUserCollectOrLike({
+      post_id: post_id,
+      operator: true,
+      type: 'like'
+    })
+
+    userStore.removeFocus(2, post_id)
+    ElMessage({ type: 'success', message: res.info })
+  }
+
+  userFavorite.value = userFavorite.value.filter(item => !selLike.value.selectedCardIds.includes(item.id))
+
+  allLike.value = false
+  selLike.value.selectedCardIds = []
+
+  waterFallInit(columns, card_columns_like, arrHeight, userFavorite)
+  resizeWaterFall(columns, card_columns_like, arrHeight, userFavorite)
+}
+
+const focusVisible = ref(false)
+const focusInfo = ref([])
+
+const followVisible = ref(false)
+const followInfo = ref([])
+
+const openFocusDialog = async () => {
+  if (userStore.userInfo.id !== route.params.id) {
+    ElMessage({ type: 'warning', message: '您不能查看其他人的关注列表' })
+    return
+  }
+  focusVisible.value = true
+  const res = await getFollowsInfo({ id: userStore.userInfo.id })
+  focusInfo.value = res.info
+  console.log("focus: ", focusInfo.value)
+}
+const openFollowDialog = async () => {
+  if (userStore.userInfo.id !== route.params.id) {
+    ElMessage({ type: 'warning', message: '您不能查看其他人的粉丝列表' })
+    return
+  }
+  followVisible.value = true
+  const res = await getFocusInfo({ id: userStore.userInfo.id })
+  followInfo.value = res.info
+  console.log("follow: ", followInfo.value)
+}
+const doFocusOnAdv = async (id) => {
+  await doFocusOn(id)
+
+  const res = await getFocusInfo({ id: userStore.userInfo.id })
+  console.log("before follow: ", followInfo.value)
+  followInfo.value = res.info
+  console.log("after follow: ", followInfo.value)
+}
+const delFocusOnAdv = async (id) => {
+  await delFocusOn(id)
+
+  const res = await getFollowsInfo({ id: userStore.userInfo.id })
+  console.log("before focus: ", focusInfo.value)
+  focusInfo.value = res.info
+  console.log("after focus: ", focusInfo.value)
+}
 </script>
 
 <template>
@@ -311,55 +516,97 @@ const all_like = ref(false)
       <el-col :span="7" style="width: 250px!important;">
         <div class="container">
           <h2>{{ userInfo.user.username }}</h2>
-          <button class="updBtn" @click="openDialog" v-if="checkMine(userInfo.user.id)">
+
+          <!-- <button class="updBtn" @click="openDialog" v-if="userStore.userInfo.id === route.params.id">
+
             <h5>编辑个人信息</h5>
-          </button>
+          </button> -->
         </div>
         <p>{{ userInfo.user.signature }}</p>
         <div class="tagArea">
-          <el-tag class="ml-2" type="success" round>{{ userInfo.user.focusOn }} 关注</el-tag>
-          <el-tag class="ml-2" type="info" round>{{ userInfo.user.fans }} 粉丝</el-tag>
-          <el-tag class="ml-2" type="warning" round>{{ userInfo.user.postsCount }} 笔记数</el-tag>
+          <!-- 使用 el-tooltip 包裹 el-tag，并设置 content 属性 -->
+          <el-tooltip content="关注数目" placement="bottom" effect="light">
+            <el-tag class="ml-2" type="success" round @click="openFocusDialog">{{ userInfo.user.focusOn }} 关注</el-tag>
+          </el-tooltip>
+          <el-tooltip content="粉丝数目" placement="bottom" effect="light">
+            <el-tag class="ml-2" type="info" round @click="openFollowDialog">{{ userInfo.user.fans }} 粉丝</el-tag>
+          </el-tooltip>
+          <el-tooltip content="笔记数目" placement="bottom" effect="light">
+            <el-tag class="ml-2" type="warning" round>{{ userInfo.user.postsCount }} 笔记数</el-tag>
+          </el-tooltip>
         </div>
       </el-col>
-      <el-col :span="5" style="width: 100px;" v-if="!checkMine(userInfo.user.id)">
-        <button @click="cancelFocusOn(userInfo.user.id)" class="focusOn" v-if="checkFollow(userInfo.user.id)">已关注
-        </button>
-        <button class="focusOn" v-else @click="doFocusOn(userInfo.user.id)">关注</button>
+
+      <el-col :span="5" style="width: 100px;" v-if="userStore.userInfo.id !== route.params.id">
+        <button class="focusOn" v-if="!checkFollow(route.params.id)" @click="doFocusOn(route.params.id)">关注</button>
+        <button class="focusOff" v-else @click="delFocusOn(route.params.id)">取关</button>
+      </el-col>
+      <el-col :span="5" style="width: 100px;" v-else>
+        <button class="focusOn" @click="openDialog">编辑信息</button>
+
       </el-col>
     </el-row>
   </div>
+  <el-dialog v-model="focusVisible" title="我的关注列表" center draggable>
+    <div class="following-list">
+      <div class="user-item" v-for="focus in focusInfo" :key="focus.id">
+        <RouterLink :to="`/user/index/${focus.id}`">
+          <img :src="focus.avatar" alt="avatar" class="avatar" />
+        </RouterLink>
+        <p style="margin-left: 5%; margin-right: 5%;">用户昵称: {{ focus.username }}</p>
+        <p style="margin-left: 5%; margin-right: 5%;">关注时间: {{ focus.createTime }}</p>
+        <p style="margin-left: 5%; margin-right: 5%;">{{ focus.back ? "已互粉" : " " }}</p>
+        <button class="delBtn" @click="delFocusOnAdv(focus.id)">取关</button>
+      </div>
+    </div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="focusVisible = false" round>确认</el-button>
+      </span>
+    </template>
+  </el-dialog>
+  <el-dialog v-model="followVisible" title="我的粉丝列表" center draggable>
+    <div class="following-list">
+      <div class="user-item" v-for="follow in followInfo" :key="follow.id">
+        <RouterLink :to="`/user/index/${follow.id}`">
+          <img :src="follow.avatar" alt="avatar" class="avatar" />
+        </RouterLink>
+        <p style="margin-left: 5%; margin-right: 5%;">用户昵称: {{ follow.username }}</p>
+        <p style="margin-left: 5%; margin-right: 5%;">关注时间: {{ follow.createTime }}</p>
+        <p style="margin-left: 5%; margin-right: 5%;">{{ follow.back ? "已互粉" : " " }}</p>
+        <button class="delBtn" :disabled="!follow.back" @click="doFocusOnAdv(follow.id)">关注</button>
+      </div>
+    </div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="followVisible = false" round>确认</el-button>
+      </span>
+    </template>
+  </el-dialog>
   <el-dialog v-model="dialogFormVisible" title="更新个人信息" center draggable>
     <div class="fileUpload">
-      <el-upload v-model:file-list="fileList"
-                 ref="upload"
-                 action="http://123.60.149.233:8000/user/avatar/"
-                 :limit="1"
-                 :on-exceed="handleExceed"
-                 :auto-upload="false"
-                 :on-change="handleChange"
-                 :headers="userStore.headersObj"
-                 :on-success="onSuccess"
-                 :on-error="onError"
-      >
-        <template #trigger>
-          <el-button class="btn" color="#2f779d" type="primary" round>选择一个文件</el-button>
-        </template>
-        <template #tip>
-          <div class="el-upload__tip" style="color:red;text-align: left">
-            仅限一个文件，新文件将会被覆盖
-          </div>
-        </template>
-      </el-upload>
+      <div class="fileUploadContainer" style="margin-left: 7%; margin-top: 10px;">
+        <el-upload v-model:file-list="fileList" ref="upload" action="http://123.60.149.233:8000/user/avatar/" :limit="1"
+          :on-exceed="handleExceed" :auto-upload="false" :on-change="handleChange" :headers="userStore.headersObj"
+          :on-success="onSuccess" :on-error="onError">
+          <template #trigger>
+            <el-button class="btn" color="#2f779d" type="primary" round>选择一个文件</el-button>
+          </template>
+          <template #tip>
+            <div class="el-upload__tip" style="color:red;text-align: left">
+              仅限一个文件，新文件将会被覆盖
+            </div>
+          </template>
+        </el-upload>
+      </div>
     </div>
     <div class="fileUpload">
       <el-form :model="form" ref="formRef" :rules="rules" label-position="top">
         <el-form-item prop="username" label="昵称" label-width="100px" style="margin: 30px;">
-          <el-input v-model="form.username" maxlength="6"
-                    show-word-limit class="my"/>
+          <el-input v-model="form.username" maxlength="6" show-word-limit class="my" />
         </el-form-item>
         <el-form-item prop="signature" label="个性签名" label-width="100px" style="margin: 30px;">
-          <el-input v-model="form.signature" class="my"/>
+          <el-input v-model="form.signature" class="my" />
         </el-form-item>
       </el-form>
     </div>
@@ -373,111 +620,93 @@ const all_like = ref(false)
     </template>
   </el-dialog>
   <div class="checkBox" @change="Toggle">
-    <el-radio-group fill="#2f779d"  v-model="radio" size="large">
-      <el-radio-button fill="#2f779d" class="radio" label="帖子" name="post"/>
-      <el-radio-button fill="#2f779d" class="radio" label="收藏" name="collect"/>
-      <el-radio-button fill="#2f779d" class="radio" label="点赞" name="like"/>
+    <el-radio-group fill="#2f779d" v-model="radio" size="large">
+      <el-radio-button fill="#2f779d" class="radio" label="帖子" name="post" />
+      <el-radio-button fill="#2f779d" class="radio" label="收藏" name="collect" />
+      <el-radio-button fill="#2f779d" class="radio" label="点赞" name="like" />
     </el-radio-group>
   </div>
   <div style="margin-top: 30px;" v-if="userInfo.user">
     <div v-if="radio === '帖子'">
-      <div v-if="userPost.length === 0">
-        <el-empty description="现在还没有帖子..."/>
-      </div>
-      <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-delay="200"
-           :infinite-scroll-distance="100"
-           v-else>
-        <home-card :card_columns="card_columns_posts" @show-detail="showMessage"></home-card>
-      </div>
-      <transition
-          name="fade"
-          @before-enter="onBeforeEnter"
-          @after-enter="onAfterEnter"
-          @before-leave="onBeforeLeave"
-          @after-leave="onAfterLeave"
-      >
-        <div class="overlay" v-if="show">
-          <button style="display:none;" class="backPage" @click="close">
-            <el-icon>
-              <Back/>
-            </el-icon>
-          </button>
-          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay"/>
-        </div>
-      </transition>
-      <div class="checkbox-container">
+      <div class="checkbox-container" v-if="userStore.userInfo.id === route.params.id">
         <label>
-          <input type="checkbox" v-model="all_sent" />
+          <input type="checkbox" v-model="allSent" @change="doAllSent" />
           全选帖子
         </label>
-        <button class="delBtn">删除所选帖子</button>
+        <button class="delBtn" @click="delSent">删除所选帖子</button>
       </div>
+      <div v-if="userPost.length === 0">
+        <el-empty description="现在还没有帖子..." />
+      </div>
+      <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-delay="200"
+        :infinite-scroll-distance="100" v-else>
+        <HomeCardAdv ref="selSent" :card_columns="card_columns_posts" @show-detail="showMessage"></HomeCardAdv>
+      </div>
+      <transition name="fade" @before-enter="onBeforeEnter" @after-enter="onAfterEnter" @before-leave="onBeforeLeave"
+        @after-leave="onAfterLeave">
+        <div class="overlay" v-if="show">
+          <button style="display:none;" class="backPage" @click="close">
+            <el-icon>
+              <Back />
+            </el-icon>
+          </button>
+          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay" />
+        </div>
+      </transition>
     </div>
     <div v-else-if="radio === '收藏'">
-      <div v-if="userCollect.length === 0">
-        <el-empty description="现在还没有收藏..."/>
-      </div>
-      <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-delay="200"
-           :infinite-scroll-distance="100"
-           v-else>
-        <home-card :card_columns="card_columns_collect" ref="overlay" @show-detail="showMessage"></home-card>
-      </div>
-      <transition
-          name="fade"
-          @before-enter="onBeforeEnter"
-          @after-enter="onAfterEnter"
-          @before-leave="onBeforeLeave"
-          @after-leave="onAfterLeave"
-      >
-        <div class="overlay" v-if="show">
-          <button style="display:none;" class="backPage" @click="close">
-            <el-icon>
-              <Back/>
-            </el-icon>
-          </button>
-          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay"/>
-        </div>
-      </transition>
-      <div class="checkbox-container">
+      <div class="checkbox-container" v-if="userStore.userInfo.id === route.params.id">
         <label>
-          <input type="checkbox" v-model="all_star" />
+          <input type="checkbox" v-model="allStar" @change="doAllStar" />
           全选收藏
         </label>
-        <button class="delBtn">取消所选收藏</button>
+        <button class="delBtn" @click="delStar">取消所选收藏</button>
       </div>
-    </div>
-    <div v-else-if="radio === '点赞'">
-      <div v-if="userFavorite.length === 0">
-        <el-empty description="现在还没有点赞..."/>
+      <div v-if="userCollect.length === 0">
+        <el-empty description="现在还没有收藏..." />
       </div>
       <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-delay="200"
-           :infinite-scroll-distance="100"
-           v-else>
-        <home-card :card_columns="card_columns_like" @show-detail="showMessage"></home-card>
+        :infinite-scroll-distance="100" v-else>
+        <HomeCardAdv ref="selStar" :card_columns="card_columns_collect" @show-detail="showMessage"></HomeCardAdv>
       </div>
-      <transition
-          name="fade"
-          @before-enter="onBeforeEnter"
-          @after-enter="onAfterEnter"
-          @before-leave="onBeforeLeave"
-          @after-leave="onAfterLeave"
-      >
+      <transition name="fade" @before-enter="onBeforeEnter" @after-enter="onAfterEnter" @before-leave="onBeforeLeave"
+        @after-leave="onAfterLeave">
         <div class="overlay" v-if="show">
           <button style="display:none;" class="backPage" @click="close">
             <el-icon>
-              <Back/>
+              <Back />
             </el-icon>
           </button>
-          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay"/>
+          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay" />
         </div>
       </transition>
-      <div class="checkbox-container">
+    </div>
+    <div v-else-if="radio === '点赞'">
+      <div class="checkbox-container" v-if="userStore.userInfo.id === route.params.id">
         <label>
-          <input type="checkbox" v-model="all_like" />
+          <input type="checkbox" v-model="allLike" @change="doAllLike" />
           全选喜欢
         </label>
-        <button class="delBtn">取消所选点赞</button>
+        <button class="delBtn" @click="delLike">取消所选点赞</button>
       </div>
+      <div v-if="userFavorite.length === 0">
+        <el-empty description="现在还没有点赞..." />
+      </div>
+      <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" :infinite-scroll-delay="200"
+        :infinite-scroll-distance="100" v-else>
+        <HomeCardAdv ref="selLike" :card_columns="card_columns_like" @show-detail="showMessage"></HomeCardAdv>
+      </div>
+      <transition name="fade" @before-enter="onBeforeEnter" @after-enter="onAfterEnter" @before-leave="onBeforeLeave"
+        @after-leave="onAfterLeave">
+        <div class="overlay" v-if="show">
+          <button style="display:none;" class="backPage" @click="close">
+            <el-icon>
+              <Back />
+            </el-icon>
+          </button>
+          <card-detail :detail="detail" @afterDoComment="afterDoComment" ref="overlay" />
+        </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -510,6 +739,26 @@ const all_like = ref(false)
   background-color: #8db4ca;
 }
 
+.focusOff {
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 40px;
+  line-height: 18px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: lightcoral;
+  border-radius: 1000px;
+  color: #fff;
+  border-color: transparent;
+  margin-top: 1rem;
+}
+
+.focusOff:hover {
+  background-color: pink;
+}
+
 .tagArea {
   width: 400px;
 }
@@ -524,7 +773,7 @@ const all_like = ref(false)
   left: 40%;
 }
 
-.radio + .radio {
+.radio+.radio {
   margin-left: 30px;
 }
 
@@ -574,7 +823,7 @@ const all_like = ref(false)
   flex-direction: column;
   gap: 30px;
   position: fixed;
-  right: 10%;
+  right: 7%;
 }
 
 label {
@@ -585,6 +834,48 @@ label {
 
 input[type="checkbox"] {
   margin-right: 8px;
+}
+
+.following-list {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eaeaea;
+  transition: background-color 0.3s;
+}
+
+.user-item:last-child {
+  border-bottom: none;
+  /* 移除最后一个用户项的底部边框 */
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-right: 20px;
+}
+
+.username-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-right: 20px;
+}
+
+.username-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #333;
 }
 
 .delBtn {
