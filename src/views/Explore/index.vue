@@ -13,6 +13,7 @@ import 'element-plus/theme-chalk/el-loading.css';
 
 const query = useRoute().query.query
 //route.query.query访问名为query的查询参数的值。例如，如果当前URL是/somepath?query=value，那么route.query.query的值将是value。
+// 获得搜索值
 const Details = controlDetail()
 
 // 主页卡片 //////////////////////////////////////////////////////////////////
@@ -136,6 +137,7 @@ const onAfterLeave = () => {
 }
 
 // 卡片详情结束 //////////////////////////////////////////////////////////////////
+
 // onMounted()钩子函数，在组件挂载后执行某些操作
 // async()=>{}异步函数
 onMounted(async () => {
