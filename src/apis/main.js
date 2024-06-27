@@ -64,11 +64,11 @@ export const postDetail = ({id}) => {
 }
 
 // 主页帖子
-export const queryPost = ({offset, query}) => {
+export const queryPost = ({offset,category, query}) => {
     return http({
         url: '/post/',
         method: 'POST',
-        data: {offset, query}
+        data: {offset,category, query}
     })
 }
 

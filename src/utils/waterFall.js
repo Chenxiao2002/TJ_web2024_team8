@@ -48,7 +48,7 @@ export function waterFallMore(arrHeight, card_columns, more) {
         arrHeight.value[obj.minI] += height
     }
 }
-
+// 重置瀑布流的分布
 export function resizeWaterFall(columns, card_columns, arrHeight, cards) {
     var timerId = null;
     window.onresize = function () {
@@ -72,5 +72,5 @@ function waterfall_column() {
     // 然后使用 Math.floor 函数对结果进行向下取整，计算出可以容纳的列数。
 }
 
-const colwidth = 184
-const cardwidth = 164
+const colwidth = 280
+const cardwidth = 250

@@ -146,6 +146,17 @@ const changeShow = () => {
 .login{
   position: absolute;
 }
+/* @media (min-width: 768px) {
+  .login {
+    width: 50%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .login {
+    width: 30%;
+  }
+} */
 .close {
   border: 0;
   position: absolute;
@@ -168,7 +179,7 @@ const changeShow = () => {
 .menu {
   position: absolute;
   width: 60px;
-  height: 80%;
+  height: 86%;
   background-color: #f3f5f6;
   z-index: 2;
   top: 65px;
@@ -327,8 +338,10 @@ const changeShow = () => {
 .menu .themeBar {
   overflow: hidden;
   width: 100%;
-  height: 10%;
+  height: 5%;
   padding: 0.5rem;
+  position: absolute; /* 绝对定位 */
+  bottom: 6%; /* 距离父元素底部20px */
 }
 
 .menu .themeBar div {
@@ -360,6 +373,8 @@ const changeShow = () => {
 }
 
 .menu .menuUser {
+  position: absolute; /* 设置绝对定位 */
+  bottom: 15%; /* 设置距离父元素底部的距离，例如20px */
   width: 100%;
   height: 10%;
 }
