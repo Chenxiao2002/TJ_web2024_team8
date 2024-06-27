@@ -9,6 +9,7 @@ import { ElMessage } from "element-plus";
 import CardDetail from "@/components/cardDetail.vue";
 import { getCurrentTime } from "@/utils/getTime";
 import { uploadPost } from "@/apis/main";
+import { categories } from "@vueuse/core/metadata.cjs";
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -87,7 +88,7 @@ const doUploads = async () => {
     title: title.value,
     content: content.value,
     user_id: userStore.userInfo.id,
-    topic: valueTopic.value,
+    category: valueTopic.value,
     user: valueUser.value,
     emoji: valueEmoji.value,
   }
@@ -101,6 +102,8 @@ const doUploads = async () => {
   }, 3000)
 
 }
+
+
 //处理图片数量
 const handleExceed = () => {
   ElMessage.warning(
@@ -214,13 +217,13 @@ const emoji = [
 </script>
 
 <template>
-  <div style="height: 1200px;">
+  <div>
     <div class="box">
       <h1 style="text-align: left;margin-left:20px;font-size:20px">发布图文</h1>
       <div class="topArea">
         <div style="font-size: large;">图片编辑</div>
         <div class="img-container">
-          <el-upload v-model:file-list="fileList" action="http://123.60.149.233:8000/upload/" class="preview" ref="upload"
+          <el-upload v-model:file-list="fileList" action="http://localhost:8000/upload/" class="preview" ref="upload"
             list-type="picture-card" multiple :headers="userStore.headersObj" :limit="9"
             :on-preview="handlePictureCardPreview" :on-change="handleChange" :auto-upload="false"
             :on-exceed="handleExceed" :data="Post" :before-upload="beforeUpload" :on-error="onError">

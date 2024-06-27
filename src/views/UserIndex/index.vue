@@ -4,7 +4,7 @@ import {onMounted, ref} from "vue";
 import HomeCard from "@/components/homeCard.vue";
 import CardDetail from "@/components/cardDetail.vue";
 import {Back} from "@element-plus/icons-vue";
-import {doFocus, queryUserIndex, queryUserPost} from "@/apis/main";
+import {doFocus, queryUserIndex, queryUserPost,unFollow} from "@/apis/main";
 import {controlDetail} from "@/stores/controlDetail";
 import {onClickOutside} from "@vueuse/core";
 import {resizeWaterFall, waterFallInit, waterFallMore} from "@/utils/waterFall";
@@ -37,6 +37,11 @@ const doFocusOn = async (id) => {
   const res = await doFocus({id})
   userStore.extendUserInfo(1, id)
   ElMessage({type: 'success', message: res.info})
+}
+const cancelFocusOn = async (id) => {
+  const res = await unFollow({ id })
+  userStore.removeFocus(1, id)
+  ElMessage({ type: 'success', message: res.info })
 }
 // 加载用户信息结束 ////////////////////////////////////////////////////////////
 
@@ -315,6 +320,8 @@ const all_like = ref(false)
         </div>
       </el-col>
       <el-col :span="5" style="width: 100px;">
+        <button @click="cancelFocusOn(detail.user.id)" class="focusOn" v-if="checkFollow(detail.user.id)">已关注
+        </button>
         <button class="focusOn" v-if="!checkFollow(userInfo.user.id)" @click="doFocusOn(userInfo.user.id)">关注</button>
       </el-col>
     </el-row>
