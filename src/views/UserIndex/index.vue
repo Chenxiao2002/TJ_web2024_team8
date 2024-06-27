@@ -556,7 +556,7 @@ const delFocusOnAdv = async (id) => {
         <p style="margin-left: 5%; margin-right: 5%;">用户昵称: {{ focus.username }}</p>
         <p style="margin-left: 5%; margin-right: 5%;">关注时间: {{ focus.createTime }}</p>
         <p style="margin-left: 5%; margin-right: 5%;">{{ focus.back ? "已互粉" : " " }}</p>
-        <button class="delBtn" @click="delFocusOnAdv(focus.id)">取关</button>
+        <button class="delBtn" v-if="!focus.back"  @click="delFocusOnAdv(focus.id)">取关</button>
       </div>
     </div>
     <template #footer>
