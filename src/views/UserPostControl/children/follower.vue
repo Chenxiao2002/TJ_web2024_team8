@@ -20,7 +20,7 @@
             <div class="extra">
               <button class="reds-button-new follow-button large"
                 :class="{ 'primary': !follower.back, 'mutual': follower.back }" @click="toggleFollow(follower)">
-                <span class="reds-button-new-box"><span class="reds-button-new-text">{{ follower.back ? '互相关注' : '回关'
+                <span class="reds-button-new-box"><span class="reds-button-new-text">{{ follower.back ? '互关' : '回关'
                     }}</span></span>
               </button>
             </div>
