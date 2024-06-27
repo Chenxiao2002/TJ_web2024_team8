@@ -53,32 +53,48 @@ const router = createRouter({
                     component: UserPostControl,
                     meta: {
                         title: '消息通知 .TJ论坛',
+                        showfater: true
                     },
                     children: [
                         {
-                          path: "/message",
+                          path: "message",
                           component: () => import("@/views/UserPostControl/children/message.vue"),
                           name: "message", // 用于 keep-alive, 必须与SFC自动推导或者显示声明的组件name一致
+                          meta:{
+                            showfater: true
+                         }
                         },
                         {
-                          path: "/agree",
+                          path: "agree",
                           component: () => import("@/views/UserPostControl/children/agree.vue"),
                           name: "agree", // 用于 keep-alive, 必须与SFC自动推导或者显示声明的组件name一致
+                          meta:{
+                            showfater: true
+                         }
                         },
                         {
-                            path: "/collection",
+                            path: "collection",
                             component: () => import("@/views/UserPostControl/children/collection.vue"),
                             name: "collection", // 用于 keep-alive, 必须与SFC自动推导或者显示声明的组件name一致
+                            meta:{
+                                showfater: true
+                             }
                           },
                         {
-                          path: "/follower",
+                          path: "follower",
                           component: () => import("@/views/UserPostControl/children/follower.vue"),
                           name: "follower", // 用于 keep-alive, 必须与SFC自动推导或者显示声明的组件name一致
+                          meta:{
+                            showfater: true
+                         }
                         },
                         {
-                          path: "/comment",
+                          path: "comment",
                           component: () => import("@/views/UserPostControl/children/comment.vue"),
                           name: "comment", // 用于 keep-alive, 必须与SFC自动推导或者显示声明的组件name一致
+                          meta:{
+                            showfater: true
+                         }
                         },
                       ],
               

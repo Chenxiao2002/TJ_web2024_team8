@@ -19,7 +19,7 @@
             </div>
             <div class="extra">
               <button class="reds-button-new follow-button large"
-                :class="{ 'primary': !follower.back, 'mutual': follower.back }" @click="toggleFollow(follower.id)">
+                :class="{ 'primary': !follower.back, 'mutual': follower.back }" @click="toggleFollow(follower)">
                 <span class="reds-button-new-box"><span class="reds-button-new-text">{{ follower.back ? '互相关注' : '回关'
                     }}</span></span>
               </button>
@@ -79,6 +79,7 @@ const fetchFollowers = async () => {
 };
 
 const toggleFollow = async (follower: Follower) => {
+  console.log(follower);
   try {
     if (follower.back) {
       const res = await unFollow(follower.id);

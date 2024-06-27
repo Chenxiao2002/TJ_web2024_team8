@@ -30,7 +30,7 @@ const checkMine = (id) => {
   if (userStore.userInfo.id === id) {
     return true;
   }
-  return userStore.userFocus.includes(id)
+  return false;
 }
 const doFocusOn = async (id) => {
   if (userStore.userInfo.id === id) {
