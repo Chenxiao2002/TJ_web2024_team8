@@ -170,11 +170,11 @@ const topics = [
 const user = [
   {
     value: "用户1",
-    label: "用户1"
+    label: "wer"
   },
   {
     value: "用户2",
-    label: "用户2"
+    label: "er"
   }
 ]
 
@@ -262,7 +262,7 @@ const afterDoComment = (comment) => Details.afterDoComment(comment);
       <el-button style="margin-top: 20px; margin-left: 30px" round type="primary" size="large"
         @click="MakePrev">生成预览</el-button>
       <el-dialog v-model="dialogVisible">
-        <img :src="dialogImageUrl" alt="Preview Image" />
+        <img :src="dialogImageUrl" style="width: 100%;" alt="Preview Image" />
       </el-dialog>
 
       <div class="overlay" v-if="show">
@@ -353,7 +353,9 @@ const afterDoComment = (comment) => Details.afterDoComment(comment);
 }
 
 .preview {
-  margin: 0, auto;
+  width: 550px;
+  height: 150px;
+  margin: 22px;
 }
 
 /* 预览层卡牌 */
