@@ -2,14 +2,11 @@
 
 ## 此仓库是前端代码
 
-## 后端代码仓库
-[后端代码仓库](https://github.com/xishandong/Django_Server_redbook)
 
 ### 使用
 
 ``` bash
 npm update
-npm run build
 npm run dev
 ```
 
@@ -30,6 +27,10 @@ npm run dev
 ### 发布
 
 已完成，可以上传图片输入信息，然后生成预览图
+
+### 通知
+
+已完成，可以查看被评论、点赞、收藏、关注消息
 
 ### 用户信息管理
 
