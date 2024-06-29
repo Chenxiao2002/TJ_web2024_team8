@@ -14,6 +14,10 @@ const props = defineProps({
   review: {
     type: Boolean,
     default: false
+  },
+  isShow: {
+    type: Boolean,
+    default: true
   }
 })
 const comments = ref([])
@@ -151,6 +155,7 @@ const load = async () => {
 //////////////////////////////////////////////////////////////
 
 onMounted(() => load())
+
 </script>
 
 <template>
@@ -170,9 +175,9 @@ onMounted(() => load())
         <!-- 图片区结束 -->
         <!-- 卡牌详情区 -->
         <el-col :span="50">
-          <div class="info" style="width: 500px;margin-top: 20px;">
+          <div class="info" style="width: 500px;margin-top: 10px;">
             <!-- 卡片头部 -->
-            <el-row style="align-items: center;width: 500px;margin-bottom:22px">
+            <el-row style="align-items: center;width: 500px;">
               <a :href="`/user/index/${detail.user.id}`">
                 <el-avatar :src="detail.user.avatar" size="large" />
               </a>
@@ -184,8 +189,8 @@ onMounted(() => load())
             <!-- 卡片头部结束 -->
             <div class="main-content">
               <!-- 卡片内容 -->
-              <el-row>
-                <h2 style="margin:0 0 8px 0;">{{ detail.title }}</h2>
+              <el-row style="margin-top: 20px;">
+                <h2>{{ detail.title }}</h2>
               </el-row>
               <el-row>
                 <div class="content">{{ detail.content }}</div>
@@ -196,19 +201,19 @@ onMounted(() => load())
               <!-- 卡片内容结束 -->
               <hr />
               <!-- 评论区 -->
-              <div class="comments" v-if="comments" v-infinite-scroll="load" :infinite-scroll-disabled="disabled">
+              <div class="comments" v-if="comments" v-show="isShow" v-infinite-scroll="load"
+                :infinite-scroll-disabled="disabled">
+
                 <el-empty description="现在还没有评论" v-if="comments.length === 0" />
                 <div v-else class="commentBox">
-                  <div class="commentTitle" style="margin-bottom: 10px;">共{{ detail.commentCount }}条评论</div>
+                  <div class="commentTitle" style="margin-bottom: 5px;">共{{ detail.commentCount }}条评论</div>
                   <div v-for="item in comments" :key="item.id">
                     <el-row :gutter="20">
-                      <!-- 头像一列 -->
                       <el-col :span="2.5">
                         <a :href="`/user/index/${item.user.id}`">
                           <el-avatar :src="item.user.avatar" :size="30"></el-avatar>
                         </a>
                       </el-col>
-                      <!-- 昵称、评论内容、时间、icon一列 -->
                       <el-col :span="20" style="font-size: 14px">
                         <div style="color:#33333399;">{{ item.user.username }}</div>
                         <div style="color:#333333;margin-top: 2px;margin-bottom: 5px;">{{ item.content }}</div>
@@ -217,8 +222,8 @@ onMounted(() => load())
                           <ChatRound />
                         </el-icon>
                       </el-col>
-                      <el-col style="margin-top: 8px;">
-                        <div v-for="reply in item.replies" :key="reply.id" style="margin-left: 30px;margin-top:5px">
+                      <el-col style="margin-top: 5px;">
+                        <div v-for="reply in item.replies" :key="reply.id" style="margin-left: 30px">
                           <!-- 渲染子评论的内容 -->
                           <el-row :gutter="20">
                             <el-col :span="2.5">
@@ -228,27 +233,25 @@ onMounted(() => load())
                             </el-col>
                             <el-col :span="20" style="font-size: 12px">
                               <div style="color:#33333399;">{{ reply.user.username }}</div>
-                              <div style="color:#333333;margin-top: 2px;margin-bottom: 5px;">{{ reply.content }}</div>
+                              <div style="color:#333333;margin-top: 2px;margin-bottom: 10px;">{{ reply.content }}</div>
                               <time class="time">{{ reply.createTime }}</time>
                             </el-col>
                           </el-row>
                         </div>
                         <div class="more" @click="loadReply(item)" v-if="item.replyCount > 0">展开{{
-    item.replyCount
-  }}条回复
+                          item.replyCount
+                        }}条回复
                         </div>
                       </el-col>
                     </el-row>
-                    <el-divider style="margin:16px 0;" />
+                    <el-divider />
                   </div>
-                  <div style="margin:16px 0;text-align: center;">-THE END-</div>
                 </div>
               </div>
             </div>
             <!-- 评论区结束 -->
-            
+            <el-divider />
           </div>
-          <el-divider style="margin:0 0 16px 0;" />
           <div class="bottomArea">
             <div class="buttonArea">
               <el-row>
@@ -294,7 +297,7 @@ onMounted(() => load())
 
 <style scoped>
 .content {
-  margin: 0 0 5px 0;
+  margin: 0;
   font-weight: 400;
   font-size: 16px;
   line-height: 28px;
@@ -330,8 +333,7 @@ onMounted(() => load())
 
 .banner {
   width: 600px;
-  border-radius: 0.8rem 0 0 0.8rem;
-  background-color: #f7f7f7;
+  border-radius: 0.8rem;
 }
 
 .username {
@@ -340,13 +342,12 @@ onMounted(() => load())
 
 .focusOn {
   position: absolute;
-  width:80px;
   right: 10px;
   padding: 0.6rem 0.8rem;
   color: white;
   background-color: #2f779d;
   border: 0;
-  border-radius: 20px;
+  border-radius: 0.8rem;
 }
 
 .focusOn:hover {
@@ -357,7 +358,7 @@ onMounted(() => load())
   width: 600px;
   height: 620px;
   border-radius: 0.8rem 0 0 0.8rem;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .main-content::-webkit-scrollbar {
@@ -368,8 +369,6 @@ onMounted(() => load())
 }
 
 .main-content {
-  padding: 0;
-  width: 500px;
   height: 420px;
   overflow-y: scroll;
 }
