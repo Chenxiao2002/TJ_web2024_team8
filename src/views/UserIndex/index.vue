@@ -1,6 +1,6 @@
 <script setup>
 import { useRoute } from "vue-router";
-import { onMounted, ref } from "vue";
+import { watch, onMounted, ref } from "vue";
 import HomeCardAdv from "@/components/homeCardAdv.vue"
 import CardDetail from "@/components/cardDetail.vue";
 
@@ -22,6 +22,15 @@ const userStore = useUserStore()
 
 // 加载用户信息 //////////////////////////////////////////////////////////////
 const userInfo = ref({})
+
+const avatarSrc = ref('');
+watch(userInfo, (newVal, oldVal) => {
+  // 当userInfo对象更新时，检查是否有头像URL
+  if (newVal && newVal.user && newVal.user.avatar) {
+    avatarSrc.value = newVal.user.avatar;
+  }
+}, { deep: true });
+
 const getUserInfo = async () => {
   const id = route.params.id
   const res = await queryUserIndex({ id })
@@ -223,6 +232,9 @@ onMounted(async () => {
     background: 'rgba(0, 0, 0, 0.7)',
   });
   await getUserInfo()
+  if (userInfo.value.user && userInfo.value.user.avatar) {
+    avatarSrc.value = userInfo.value.user.avatar;
+  }
   await Toggle()
   resize()
   // console.log("params: ", route.params.id)
@@ -328,6 +340,7 @@ const doUpdate = async () => {
     ElMessage({ type: 'success', message: '头像上传成功' });
     dialogFormVisible.value = false;
     await getUserInfo()
+    avatarSrc.value = userStore.userInfo.avatar
     return;
   }
 
@@ -338,6 +351,7 @@ const doUpdate = async () => {
     ElMessage({ type: 'success', message: res.info });
     dialogFormVisible.value = false;
     await getUserInfo()
+    avatarSrc.value = userStore.userInfo.avatar
   }
 };
 
@@ -528,7 +542,7 @@ const delFocusOnAdv = async (id) => {
   <div class="userInfo" v-if="userInfo.user">
     <el-row :gutter="10">
       <el-col :span="7" style="width: 250px;">
-        <el-avatar :size="150" :src="userInfo.user.avatar"></el-avatar>
+        <el-avatar :size="150" :src="avatarSrc" :key="avatarSrc"></el-avatar>
       </el-col>
       <el-col :span="7" style="width: 250px!important;">
         <div class="container">
