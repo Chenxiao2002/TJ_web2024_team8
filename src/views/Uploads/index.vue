@@ -353,9 +353,7 @@ const afterDoComment = (comment) => Details.afterDoComment(comment);
 }
 
 .preview {
-  width: 550px;
-  height: 150px;
-  margin: 22px;
+  margin: 0 auto;
 }
 
 /* 预览层卡牌 */
