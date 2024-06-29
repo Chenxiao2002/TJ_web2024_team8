@@ -13,7 +13,7 @@ import { controlDetail } from "@/stores/controlDetail";
 import { onClickOutside } from "@vueuse/core";
 import { resizeWaterFall, waterFallInit, waterFallMore } from "@/utils/waterFall";
 import { useUserStore } from "@/stores/user";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElLoading } from "element-plus";
 
 
 const route = useRoute()
@@ -208,7 +208,20 @@ const resize = () => {
     resizeWaterFall(columns, card_columns_like, arrHeight, userFavorite)
   }
 }
+
+// 加载动画相关变量
+const loading = ref(false);
+const loadingContainer = ref(null);
+let loadingInstance = null;
+
 onMounted(async () => {
+  loading.value = true;
+  loadingInstance = ElLoading.service({
+    target: loadingContainer.value,
+    lock: true,
+    text: '加载中...',
+    background: 'rgba(0, 0, 0, 0.7)',
+  });
   await getUserInfo()
   await Toggle()
   resize()
@@ -216,6 +229,10 @@ onMounted(async () => {
   // console.log("my_uid: ", userStore.userInfo.id)
   // console.log("userStore: ")
   // console.log(userStore)
+  loading.value = false;
+  if (loadingInstance) {
+    loadingInstance.close();
+  }
 })
 
 import { genFileId } from 'element-plus'
@@ -574,7 +591,8 @@ const delFocusOnAdv = async (id) => {
         <p style="margin-left: 5%; margin-right: 5%;">用户昵称: {{ follow.username }}</p>
         <p style="margin-left: 5%; margin-right: 5%;">关注时间: {{ follow.createTime }}</p>
         <p style="margin-left: 12%; margin-right: 5%;" v-if="follow.back">已互粉</p>
-        <button class="delBtn" :disabled="!follow.back" style="margin-left: 10%;" @click="doFocusOnAdv(follow.id)" v-else>关注</button>
+        <button class="delBtn" :disabled="!follow.back" style="margin-left: 10%;" @click="doFocusOnAdv(follow.id)"
+          v-else>关注</button>
       </div>
     </div>
     <template #footer>
@@ -619,7 +637,7 @@ const delFocusOnAdv = async (id) => {
       </span>
     </template>
   </el-dialog>
-  <div class="checkBox" @change="Toggle">
+  <div class="checkBox" @change="Toggle" v-if="!loading">
     <el-radio-group fill="#2f779d" v-model="radio" size="large">
       <el-radio-button fill="#2f779d" class="radio" label="帖子" name="post" />
       <el-radio-button fill="#2f779d" class="radio" label="收藏" name="collect" />
