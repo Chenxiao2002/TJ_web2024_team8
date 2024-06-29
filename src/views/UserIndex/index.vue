@@ -573,7 +573,7 @@ const delFocusOnAdv = async (id) => {
         <p style="margin-left: 5%; margin-right: 5%;">用户昵称: {{ focus.username }}</p>
         <p style="margin-left: 5%; margin-right: 5%;">关注时间: {{ focus.createTime }}</p>
         <p style="margin-left: 5%; margin-right: 5%;">{{ focus.back ? "已互粉" : " " }}</p>
-        <button class="delBtn" @click="delFocusOnAdv(focus.id)" style="background-color: lightcoral;">取关</button>
+        <button class="delBtn" @click="delFocusOnAdv(focus.id)" style="position: absolute; right: 7%;">取关</button>
       </div>
     </div>
     <template #footer>
@@ -591,8 +591,7 @@ const delFocusOnAdv = async (id) => {
         <p style="margin-left: 5%; margin-right: 5%;">用户昵称: {{ follow.username }}</p>
         <p style="margin-left: 5%; margin-right: 5%;">关注时间: {{ follow.createTime }}</p>
         <p style="margin-left: 12%; margin-right: 5%;" v-if="follow.back">已互粉</p>
-        <button class="delBtn" :disabled="!follow.back" style="margin-left: 10%;" @click="doFocusOnAdv(follow.id)"
-          v-else>关注</button>
+        <button class="addBtn" style="position: absolute; right: 12%;" @click="doFocusOnAdv(follow.id)" v-else>关注</button>
       </div>
     </div>
     <template #footer>
@@ -651,7 +650,7 @@ const delFocusOnAdv = async (id) => {
           <input type="checkbox" v-model="allSent" @change="doAllSent" />
           全选帖子
         </label>
-        <button class="delBtn" @click="delSent" style="background-color: lightcoral;">删除所选帖子</button>
+        <button class="delBtn" @click="delSent">删除所选帖子</button>
       </div>
       <div v-if="userPost.length === 0">
         <el-empty description="现在还没有帖子..." />
@@ -896,7 +895,7 @@ input[type="checkbox"] {
   color: #333;
 }
 
-.delBtn {
+.addBtn {
   width: 90px;
   border: 0px;
   background-color: #2f779d;
@@ -912,8 +911,28 @@ input[type="checkbox"] {
   white-space: nowrap;
 }
 
-.delBtn:hover {
+.addBtn:hover {
   background-color: #2f779db6;
+}
+
+.delBtn {
+  width: 90px;
+  border: 0px;
+  background-color: lightcoral;
+  color: white;
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 0.8rem;
+  transition: background-color 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.delBtn:hover {
+  background-color: rgb(240, 180, 180);
 }
 
 .overlay {
