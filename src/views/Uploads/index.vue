@@ -152,6 +152,10 @@ const valueUser = ref('')
 const valueEmoji = ref('')
 const topics = [
   {
+    value: "日常",
+    label: "日常"
+  },
+  {
     value: "学习",
     label: "学习"
   },
@@ -171,6 +175,7 @@ const topics = [
     value: "交友",
     label: "交友"
   },
+
 ]
 const followInfo = ref([]);
 //获取用户信息
@@ -253,7 +258,8 @@ const afterDoComment = (comment) => Details.afterDoComment(comment);
           <el-option v-for="item in topics" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
         <el-select v-model="valueUser" placeholder="@用户" style="width: 100px; height: 30px;margin-right: 20px;">
-          <el-option v-for="item in followInfo" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          <el-option v-for="item in followInfo" :key="item.value" :label="item.label"
+            :value="item.username"></el-option>
         </el-select>
 
         <el-select v-model="valueEmoji" placeholder="😊表情" style="width: 100px; height: 30px;margin-right: 20px;">
