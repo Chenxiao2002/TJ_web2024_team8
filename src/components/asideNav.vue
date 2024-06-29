@@ -51,7 +51,7 @@ const changeShow = () => {
       <li class="menuBreak"> 
         <hr>
       </li>
-      <li class="menuItem">
+      <li class="menuItem" v-if="userStore.userInfo.status != 2">
         <el-tooltip effect="dark" content="发布" placement="right">
           <RouterLink to="/user/uploads" class="menuOption">
             <el-icon size="x-large">
@@ -61,7 +61,7 @@ const changeShow = () => {
           </RouterLink>
         </el-tooltip>
       </li>
-      <li class="menuItem" v-if="userStore.userInfo.id">
+      <li class="menuItem" v-if="userStore.userInfo.id && userStore.userInfo.status != 2">
         <el-tooltip effect="dark" content="通知" placement="right">
           <RouterLink to="/user/control">
             <div class="menuOption">
@@ -86,7 +86,7 @@ const changeShow = () => {
     </ul>
     <div class="about" id="about">
     </div>
-    <div v-if="userStore.userInfo.id">
+    <div v-if="userStore.userInfo.id && userStore.userInfo.status != 2">
       <div class="menuUser">
         <RouterLink :to="`/user/index/${userStore.userInfo.id}`">
           <div>
